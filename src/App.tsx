@@ -1,11 +1,13 @@
-import Layout from "./components/layout/Layout";
+import { Outlet } from "react-router-dom";
+import Sidebar from "./components/layout/Sidebar";
 
-function App() {
+export default function App() {
   return (
-    <Layout>
-      <p>Hello World</p>
-    </Layout>
+    <div className="flex h-screen bg-gray-200 dark:bg-gray-900">
+      <Sidebar />
+      <main className="p-4">
+        <Outlet />
+      </main>
+    </div>
   )
 }
-
-export default App;

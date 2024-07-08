@@ -5,12 +5,12 @@ export default function Sidebar() {
   return (
     <aside className="w-60 bg-gradient-to-b from-gray-900 to-gray-800">
       <div className="flex items-center gap-2 pl-5 py-4 border-b border-gray-700">
-        <div className="rounded-full bg-gray-800 max-w-min max-h-min p-2">
+        <div className="rounded-full bg-gray-700 max-w-min max-h-min p-2">
           <UserRound size={25} color="white" />
         </div>
         <div>
-          <p className="text-md font-semibold text-gray-300">Nome do usuário</p>
-          <p className="text-sm text-gray-400">Perfil: administrador</p>
+          <p className="text-sm font-semibold text-gray-300">Nome do usuário</p>
+          <p className="text-xs text-gray-400">Perfil: administrador</p>
         </div>
       </div>
       <ul>
