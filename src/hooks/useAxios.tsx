@@ -1,17 +1,27 @@
 import axios from "axios";
 import { useEffect, useState } from "react";
 
-type useAxiosProps = {
+type AxiosHookProps = {
   url: string,
   method: 'get' | 'post' | 'put' | 'delete',
   body?: any,
   headers?: any
 }
 
-axios.defaults.baseURL = import.meta.env.API_URL;
+type ResponseSuccess = {
+  status: "success",
+  data: any
+}
 
-const useAxios = ({ url, method, body = null, headers = null }: useAxiosProps) => {
-  const [response, setResponse] = useState(null)
+// type ResponseError = {
+//   status: "error",
+//   message: string | string[]
+// }
+
+axios.defaults.baseURL = import.meta.env.VITE_API_URL;
+
+const useAxios = ({ url, method, body = null, headers = null }: AxiosHookProps) => {
+  const [response, setResponse] = useState<ResponseSuccess | null>(null)
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(true)
 

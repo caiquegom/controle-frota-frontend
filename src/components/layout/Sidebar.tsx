@@ -16,7 +16,7 @@ export default function Sidebar() {
       </div>
       <div>
         {menuItems.map((item) => (
-          <Link to={item.path} className="flex items-center gap-2 px-6 py-3 hover:bg-gray-700 hover:cursor-pointer" >
+          <Link key={item.name} to={item.path} className="flex items-center gap-2 px-6 py-3 hover:bg-gray-700 hover:cursor-pointer" >
             <item.icon className="h-5 w-5 text-gray-300" />
             <span className="text-sm font-medium text-gray-300">{item.name}</span>
           </Link>

@@ -1,9 +1,21 @@
+import NoItemsFound from "@/components/NoItemsFound";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { SquarePen, Trash } from "lucide-react";
+import { Table, TableBody, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import useAxios from "@/hooks/useAxios";
+import { useEffect, useState } from "react";
+import CargoTableItem from "./components/CargoTableItem";
+import CargoTableSkeleton from "./components/CargoTableSkeleton";
 
 export default function Cargo() {
+  const { response, loading } = useAxios({ url: '/cargos', method: 'get' })
+  const [cargosList, setCargoList] = useState<Array<string | null>>([])
+
+  useEffect(() => {
+    if (!response) return
+    setCargoList(response?.data)
+  }, [response])
+
   return (
     <>
       <h1 className="text-2xl font-semibold pb-4">Cargas</h1>
@@ -16,25 +28,20 @@ export default function Cargo() {
             <TableHeader>
               <TableRow>
                 <TableHead>Id</TableHead>
+                <TableHead>Nome</TableHead>
                 <TableHead>Tipo de carga</TableHead>
                 <TableHead>Descrição</TableHead>
                 <TableHead>Ações</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              <TableRow>
-                <TableCell className="font-medium">1</TableCell>
-                <TableCell className="w-fit">Combustível</TableCell>
-                <TableCell>Abastecimento de carros</TableCell>
-                <TableCell className="flex">
-                  <Button size="icon" className="bg-transparent hover:bg-transparent p-0 ">
-                    <SquarePen size={20} color="blue" />
-                  </Button>
-                  <Button size="icon" className="bg-transparent hover:bg-transparent p-0 ">
-                    <Trash size={20} color="red" />
-                  </Button>
-                </TableCell>
-              </TableRow>
+              {loading ? (<CargoTableSkeleton />) : (
+                cargosList.length === 0 ? (
+                  <NoItemsFound />
+                ) : cargosList.map(cargo => (
+                  <CargoTableItem id={cargo.id} name={cargo.name} type={cargo.type} description={cargo.description} />
+                ))
+              )}
             </TableBody>
           </Table>
         </CardContent>
