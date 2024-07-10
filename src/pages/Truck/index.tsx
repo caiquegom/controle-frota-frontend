@@ -1,29 +1,73 @@
-import NoItemsFound from "@/components/NoItemsFound";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import { Table, TableBody, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import useAxios from "@/hooks/useAxios";
-import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
-import TruckTableItem from "./components/TruckTableItem";
-import TruckTableSkeleton from "./components/TruckTableSkeleton";
+import NoItemsFound from '@/components/NoItemsFound';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader } from '@/components/ui/card';
+import {
+  Table,
+  TableBody,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
+import useAxios from '@/hooks/useAxios';
+import axios from 'axios';
+import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import TruckTableItem from './components/TruckTableItem';
+import TruckTableSkeleton from './components/TruckTableSkeleton';
+
+export type TruckProps = {
+  id: number;
+  name: string;
+  brand: string;
+  model: string;
+  year: string;
+  capacity: number;
+};
 
 export default function Truck() {
   const navigate = useNavigate();
-  const { response, loading } = useAxios({ url: '/trucks', method: 'get' })
-  const [trucksList, setTrucksList] = useState<Array<string | null>>([])
+  const { response, loading } = useAxios({ url: '/trucks', method: 'get' });
+  const [trucksList, setTrucksList] = useState<TruckProps[]>([]);
 
   useEffect(() => {
-    if (!response) return
-    setTrucksList(response?.data)
-  }, [response])
+    if (!response) return;
+    setTrucksList(response?.data);
+  }, [response]);
+
+  async function deleteTruck(id: number) {
+    try {
+      await axios.delete(`/truck/${id}`);
+      setTrucksList(trucksList.filter((truck) => truck.id !== id));
+    } catch (error) {
+      console.error('Error:', error);
+    }
+  }
+
+async function updateTruck(updatedTruck: TruckProps) {
+  try {
+    const response = await axios.put(`/truck/${updatedTruck.id}`, updatedTruck);
+    if (response.status !== 201) {
+      console.error('Erro ao atualizar:', response.statusText);
+      return;
+    }
+    setTrucksList(
+      trucksList.map((truck) =>
+        truck.id === updatedTruck.id ? updatedTruck : truck,
+      ),
+    );
+  } catch (error) {
+    console.error('Erro ao atualizar:', error);
+  }
+}
 
   return (
     <>
       <h1 className="text-2xl font-semibold pb-4">Caminhões</h1>
-      <Card className="w-full">
-        <CardHeader className="flex items-end">
-          <Button className="w-fit" onClick={() => navigate('/truck/add')}>Adicionar caminhão</Button>
+      <Card className="w-full h-[90%] overflow-auto">
+        <CardHeader className="flex items-end sticky top-0 z-10 bg-white bg-clip-padding backdrop-filter backdrop-blur-sm bg-opacity-75 shadow-sm mb-4">
+          <Button className="w-fit" onClick={() => navigate('/truck/add')}>
+            Adicionar caminhão
+          </Button>
         </CardHeader>
         <CardContent>
           <Table>
@@ -39,11 +83,23 @@ export default function Truck() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {loading ? (<TruckTableSkeleton />) : (
-                (!trucksList || trucksList.length === 0) ? (
-                  <NoItemsFound />
-                ) : trucksList.map(truck => (
-                  <TruckTableItem key={truck.id} id={truck.id} name={truck.name} brand={truck.brand} capacity={truck.capacity} model={truck.model} year={truck.year} />
+              {loading ? (
+                <TruckTableSkeleton />
+              ) : !trucksList || trucksList.length === 0 ? (
+                <NoItemsFound />
+              ) : (
+                trucksList.map((truck: TruckProps) => (
+                  <TruckTableItem
+                    key={truck.id}
+                    id={truck.id}
+                    name={truck.name}
+                    brand={truck.brand}
+                    capacity={truck.capacity}
+                    model={truck.model}
+                    year={truck.year}
+                    onDelete={deleteTruck}
+                    onUpdate={updateTruck}
+                  />
                 ))
               )}
             </TableBody>
@@ -51,5 +107,5 @@ export default function Truck() {
         </CardContent>
       </Card>
     </>
-  )
+  );
 }

@@ -1,5 +1,6 @@
 import CargoForm from '@/pages/Cargo/CargoForm';
 import RegionForm from '@/pages/Regions/RegionForm';
+import TruckForm from '@/pages/Truck/TruckForm';
 import menuItems from './menuItems';
 
 const routes = menuItems.map((item) => ({
@@ -15,6 +16,10 @@ routes.push(
   {
     path: '/region/add',
     element: <RegionForm />
+  },
+  {
+    path: '/truck/add',
+    element: <TruckForm />
   }
 )
 

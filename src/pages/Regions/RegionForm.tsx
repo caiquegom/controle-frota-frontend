@@ -17,8 +17,8 @@ export default function RegionForm() {
   const { toast } = useToast();
 
   const formSchema = z.object({
-    name: z.string().min(3, 'O nome da carga precisa ter pelo menos 3 caracteres.'),
-    tax: z.number().min(0, 'Taxa não pode ser menor que 0').max(1, 'Taxa não pode ser maior que 1'),
+    name: z.string().min(3, 'O nome da região precisa ter pelo menos 3 caracteres.'),
+    tax: z.number({ message: 'A taxa deve ser um número.' }).min(0, 'Taxa não pode ser menor que 0').max(1, 'Taxa não pode ser maior que 1'),
   });
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -51,7 +51,7 @@ export default function RegionForm() {
           <Form {...form}>
             <form
               onSubmit={form.handleSubmit(onSubmit)}
-              className="flex flex-col gap-2"
+              className="flex flex-col gap-2 grid grid-cols-2"
             >
               <FormField
                 control={form.control}
@@ -60,7 +60,7 @@ export default function RegionForm() {
                   <FormItem>
                     <FormLabel>Nome</FormLabel>
                     <FormControl>
-                      <Input placeholder="Digite o nome da carga" {...field} />
+                      <Input placeholder="Digite o nome da região" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -90,7 +90,7 @@ export default function RegionForm() {
                   </FormItem>
                 )}
               />
-              <Button type="submit">Cadastrar região</Button>
+              <Button type="submit" className='mt-2 col-span-2'>Cadastrar região</Button>
             </form>
           </Form>
         </CardContent>

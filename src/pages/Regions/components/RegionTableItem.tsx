@@ -54,7 +54,6 @@ export default function RegionTableItem({
   onUpdate,
 }: RegionItemProps) {
   const { toast } = useToast();
-
   const [dialogIsOpen, setDialogIsOpen] = useState(false);
   const [editDialogIsOpen, setEditDialogIsOpen] = useState(false);
 

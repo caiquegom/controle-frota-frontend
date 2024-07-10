@@ -26,11 +26,6 @@ export default function Region() {
   const { response, loading } = useAxios({ url: '/regions', method: 'get' });
   const [regionsList, setRegionsList] = useState<RegionProps[]>([]);
 
-  useEffect(() => {
-    if (!response) return;
-    setRegionsList(response?.data);
-  }, [response]);
-
   async function deleteRegion(id: number) {
     try {
       await axios.delete(`/region/${id}`);
@@ -51,11 +46,16 @@ export default function Region() {
     }
   }
 
+  useEffect(() => {
+    if (!response) return;
+    setRegionsList(response?.data);
+  }, [response]);
+
   return (
     <>
       <h1 className="text-2xl font-semibold pb-4">Regiões</h1>
-      <Card className="w-full h-screen overflow-y-auto">
-        <CardHeader className="flex items-end">
+      <Card className="w-full h-[90%] overflow-auto">
+        <CardHeader className="flex items-end sticky top-0 z-10 bg-white bg-clip-padding backdrop-filter backdrop-blur-sm bg-opacity-75 shadow-sm mb-4">
           <Button className="w-fit" onClick={() => navigate('/region/add')}>
             Adicionar região
           </Button>
@@ -67,6 +67,7 @@ export default function Region() {
                 <TableHead>Id</TableHead>
                 <TableHead>Nome</TableHead>
                 <TableHead>Taxa</TableHead>
+                <TableHead>Ações</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -75,12 +76,12 @@ export default function Region() {
               ) : regionsList.length === 0 ? (
                 <NoItemsFound />
               ) : (
-                regionsList.map((cargo: RegionProps) => (
+                regionsList.map((region: RegionProps) => (
                   <RegionTableItem
-                    key={cargo.id}
-                    id={cargo.id}
-                    name={cargo.name}
-                    tax={cargo.tax}
+                    key={region.id}
+                    id={region.id}
+                    name={region.name}
+                    tax={region.tax}
                     onDelete={deleteRegion}
                     onUpdate={updateRegion}
                   />
