@@ -14,8 +14,8 @@ import * as z from "zod";
 
 const FormSchema = z.object({
   type: z.string().nonempty({ message: "Selecione um tipo de carga." }),
-  name: z.string().nonempty({ message: "Digite o nome da carga." }),
-  description: z.string().nonempty({ message: "Digite uma descrição." }),
+  name: z.string().min(3, { message: "O nome da carga deve ter pelo menos 3 caracteres" }),
+  description: z.string().min(5, { message: "A descrição deve ter pelo menos 5 caracteres." }),
 });
 
 function CargoForm() {
