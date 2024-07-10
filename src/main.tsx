@@ -3,17 +3,13 @@ import ReactDOM from 'react-dom/client';
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 import App from './App';
 import './index.css';
-import menuItems from './utils/menuItems';
+import routes from './utils/routes';
 
-const elementChildren = menuItems.map(item => ({
-  path: item.path,
-  element: <item.component />
-}))
 const router = createBrowserRouter([
   {
     path: "/",
     element: <App />,
-    children: elementChildren,
+    children: routes,
   },
 ])
 

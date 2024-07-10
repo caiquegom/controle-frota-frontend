@@ -1,6 +1,16 @@
+import Cargo from '@/pages/Cargo';
 import Dashboard from '@/pages/Dashboard';
 import Deliveries from '@/pages/Deliveries';
-import { ClipboardList, HomeIcon, LucideProps } from 'lucide-react';
+import Region from '@/pages/Regions';
+import Truck from '@/pages/Truck';
+import {
+  ClipboardList,
+  HomeIcon,
+  LandPlot,
+  LucideProps,
+  Package,
+  TruckIcon,
+} from 'lucide-react';
 
 type menuItemsType = {
   name: string;
@@ -26,6 +36,27 @@ const menuItems: menuItemsType[] = [
     component: Deliveries,
     icon: ClipboardList,
     roles: ['admin', 'driver'],
+  },
+  {
+    name: 'Cargas',
+    path: '/cargos',
+    component: Cargo,
+    icon: Package,
+    roles: ['admin'],
+  },
+  {
+    name: 'Caminhões',
+    path: '/trucks',
+    component: Truck,
+    icon: TruckIcon,
+    roles: ['admin'],
+  },
+  {
+    name: 'Regiões',
+    path: '/regions',
+    component: Region,
+    icon: LandPlot,
+    roles: ['admin'],
   },
 ];
 
