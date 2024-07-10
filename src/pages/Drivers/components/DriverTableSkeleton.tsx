@@ -1,7 +1,7 @@
-import { Skeleton } from "@/components/ui/skeleton"
-import { TableCell, TableRow } from "@/components/ui/table"
+import { Skeleton } from "@/components/ui/skeleton";
+import { TableCell, TableRow } from "@/components/ui/table";
 
-export default function CargoTableSkeleton() {
+export default function DriverTableSkeleton() {
   return Array.from({ length: 3 }).map((_, index) => (
     <TableRow key={index}>
       <TableCell className="font-medium">
@@ -21,5 +21,4 @@ export default function CargoTableSkeleton() {
       </TableCell>
     </TableRow>
   ))
-
 }

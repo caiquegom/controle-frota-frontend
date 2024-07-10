@@ -21,6 +21,7 @@ routes.push(
     path: '/truck/add',
     element: <TruckForm />
   }
+
 )
 
 export default routes;

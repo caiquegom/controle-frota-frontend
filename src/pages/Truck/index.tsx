@@ -43,22 +43,22 @@ export default function Truck() {
     }
   }
 
-async function updateTruck(updatedTruck: TruckProps) {
-  try {
-    const response = await axios.put(`/truck/${updatedTruck.id}`, updatedTruck);
-    if (response.status !== 201) {
-      console.error('Erro ao atualizar:', response.statusText);
-      return;
+  async function updateTruck(updatedTruck: TruckProps) {
+    try {
+      const response = await axios.put(`/truck/${updatedTruck.id}`, updatedTruck);
+      if (response.status !== 201) {
+        console.error('Erro ao atualizar:', response.statusText);
+        return;
+      }
+      setTrucksList(
+        trucksList.map((truck) =>
+          truck.id === updatedTruck.id ? updatedTruck : truck,
+        ),
+      );
+    } catch (error) {
+      console.error('Erro ao atualizar:', error);
     }
-    setTrucksList(
-      trucksList.map((truck) =>
-        truck.id === updatedTruck.id ? updatedTruck : truck,
-      ),
-    );
-  } catch (error) {
-    console.error('Erro ao atualizar:', error);
   }
-}
 
   return (
     <>

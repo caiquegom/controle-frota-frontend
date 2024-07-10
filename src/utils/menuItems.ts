@@ -1,6 +1,7 @@
 import Cargo from '@/pages/Cargo';
 import Dashboard from '@/pages/Dashboard';
 import Deliveries from '@/pages/Deliveries';
+import Drivers from '@/pages/Drivers';
 import Region from '@/pages/Regions';
 import Truck from '@/pages/Truck';
 import {
@@ -10,6 +11,7 @@ import {
   LucideProps,
   Package,
   TruckIcon,
+  User,
 } from 'lucide-react';
 
 type menuItemsType = {
@@ -19,7 +21,6 @@ type menuItemsType = {
   icon: React.ForwardRefExoticComponent<
     Omit<LucideProps, 'ref'> & React.RefAttributes<SVGSVGElement>
   >;
-  roles: string[];
 };
 
 const menuItems: menuItemsType[] = [
@@ -28,35 +29,36 @@ const menuItems: menuItemsType[] = [
     path: '/dashboard',
     component: Dashboard,
     icon: HomeIcon,
-    roles: ['admin'],
   },
   {
     name: 'Entregas',
     path: '/deliveries',
     component: Deliveries,
     icon: ClipboardList,
-    roles: ['admin', 'driver'],
   },
   {
     name: 'Cargas',
     path: '/cargos',
     component: Cargo,
     icon: Package,
-    roles: ['admin'],
   },
   {
     name: 'Caminhões',
     path: '/trucks',
     component: Truck,
     icon: TruckIcon,
-    roles: ['admin'],
+  },
+  {
+    name: 'Motoristas',
+    path: '/drivers',
+    component: Drivers,
+    icon: User,
   },
   {
     name: 'Regiões',
     path: '/regions',
     component: Region,
     icon: LandPlot,
-    roles: ['admin'],
   },
 ];
 
