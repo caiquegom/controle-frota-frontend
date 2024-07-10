@@ -1,30 +1,27 @@
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { TableCell, TableRow } from "@/components/ui/table";
 import { SquarePen, Trash } from "lucide-react";
 
-type CargoItemProps = {
+type TruckItemProps = {
   id: number,
   name: string,
-  type: 'eletronic' | 'fuel' | 'other'
-  description?: string
+  brand: string,
+  model: string,
+  year: string,
+  capacity: number,
 }
 
-const cargoTypeBadge = {
-  eletronic: <Badge className="bg-blue-900">Eletrônico</Badge>,
-  fuel: <Badge className="bg-green-900">Combustível</Badge>,
-  other: <Badge className="bg-black">Combustível</Badge>
-}
-
-export default function CargoTableItem({ id, name, type, description }: CargoItemProps) {
+export default function TruckTableItem({ id, name, brand, model, year, capacity }: TruckItemProps) {
   return (
     <TableRow>
       <TableCell className="font-medium">{id}</TableCell>
       <TableCell className="w-fit">{name}</TableCell>
       <TableCell className="w-fit">
-        {cargoTypeBadge[type]}
+        {brand}
       </TableCell>
-      <TableCell>{description ?? '-'}</TableCell>
+      <TableCell>{model}</TableCell>
+      <TableCell>{year}</TableCell>
+      <TableCell>{capacity}</TableCell>
       <TableCell className="flex">
         <Button size="icon" className="bg-transparent hover:bg-transparent p-0 ">
           <SquarePen size={20} color="blue" />

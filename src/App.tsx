@@ -1,5 +1,6 @@
 import { Outlet } from "react-router-dom";
 import Sidebar from "./components/layout/Sidebar";
+import { Toaster } from "./components/ui/toaster";
 
 export default function App() {
   return (
@@ -8,6 +9,7 @@ export default function App() {
       <main className="p-4 w-full">
         <Outlet />
       </main>
+      <Toaster />
     </div>
   )
 }
