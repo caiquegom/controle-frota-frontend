@@ -4,10 +4,12 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Table, TableBody, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import useAxios from "@/hooks/useAxios";
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import CargoTableItem from "./components/CargoTableItem";
 import CargoTableSkeleton from "./components/CargoTableSkeleton";
 
 export default function Cargo() {
+  const navigate = useNavigate();
   const { response, loading } = useAxios({ url: '/cargos', method: 'get' })
   const [cargosList, setCargoList] = useState<Array<string | null>>([])
 
@@ -21,7 +23,7 @@ export default function Cargo() {
       <h1 className="text-2xl font-semibold pb-4">Cargas</h1>
       <Card className="w-full">
         <CardHeader className="flex items-end">
-          <Button className="w-fit">Adicionar carga</Button>
+          <Button className="w-fit" onClick={() => navigate('/cargo/add')}>Adicionar carga</Button>
         </CardHeader>
         <CardContent>
           <Table>
@@ -36,7 +38,7 @@ export default function Cargo() {
             </TableHeader>
             <TableBody>
               {loading ? (<CargoTableSkeleton />) : (
-                cargosList.length === 0 ? (
+                (!cargosList || cargosList.length === 0) ? (
                   <NoItemsFound />
                 ) : cargosList.map(cargo => (
                   <CargoTableItem id={cargo.id} name={cargo.name} type={cargo.type} description={cargo.description} />
