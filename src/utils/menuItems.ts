@@ -3,6 +3,7 @@ import Dashboard from '@/pages/Dashboard';
 import Deliveries from '@/pages/Deliveries';
 import Drivers from '@/pages/Drivers';
 import Region from '@/pages/Regions';
+import Settings from '@/pages/Settings';
 import Truck from '@/pages/Truck';
 import {
   ClipboardList,
@@ -10,6 +11,7 @@ import {
   LandPlot,
   LucideProps,
   Package,
+  SettingsIcon,
   TruckIcon,
   User,
 } from 'lucide-react';
@@ -59,6 +61,12 @@ const menuItems: menuItemsType[] = [
     path: '/regions',
     component: Region,
     icon: LandPlot,
+  },
+  {
+    name: 'Configurações',
+    path: '/settings',
+    component: Settings,
+    icon: SettingsIcon,
   },
 ];
 

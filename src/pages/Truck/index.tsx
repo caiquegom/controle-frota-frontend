@@ -85,10 +85,8 @@ export default function Truck() {
             <TableBody>
               {loading ? (
                 <TruckTableSkeleton />
-              ) : !trucksList || trucksList.length === 0 ? (
-                <NoItemsFound />
               ) : (
-                trucksList.map((truck: TruckProps) => (
+                trucksList?.map((truck: TruckProps) => (
                   <TruckTableItem
                     key={truck.id}
                     id={truck.id}
@@ -104,6 +102,7 @@ export default function Truck() {
               )}
             </TableBody>
           </Table>
+          {(!loading && (!trucksList || trucksList.length === 0)) && <NoItemsFound />}
         </CardContent>
       </Card>
     </>

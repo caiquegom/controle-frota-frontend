@@ -75,10 +75,8 @@ export default function Drivers() {
             <TableBody>
               {loading ? (
                 <DriverTableSkeleton />
-              ) : !driversList || driversList.length === 0 ? (
-                <NoItemsFound />
               ) : (
-                driversList.map((driver: DriverProps) => (
+                driversList?.map((driver: DriverProps) => (
                   <DriverTableItem
                     key={driver.id}
                     id={driver.id}
@@ -90,6 +88,7 @@ export default function Drivers() {
                   />
                 ))
               )}
+              {(!loading && (!driversList || driversList.length === 0)) && <NoItemsFound />}
             </TableBody>
           </Table>
         </CardContent>

@@ -73,8 +73,6 @@ export default function Region() {
             <TableBody>
               {loading ? (
                 <RegionTableSkeleton />
-              ) : regionsList.length === 0 ? (
-                <NoItemsFound />
               ) : (
                 regionsList.map((region: RegionProps) => (
                   <RegionTableItem
@@ -89,6 +87,9 @@ export default function Region() {
               )}
             </TableBody>
           </Table>
+          {(!loading && (!regionsList || regionsList.length === 0)) && (
+            <NoItemsFound />
+          )}
         </CardContent>
       </Card>
     </>
