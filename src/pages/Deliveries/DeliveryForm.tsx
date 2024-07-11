@@ -97,6 +97,7 @@ export default function DeliveryForm() {
     }
   }
 
+
   const updateValues = () => {
     const tax = Number(form.getValues().tax) || 0;
     const value = Number(form.getValues().value) || 0;
