@@ -19,6 +19,7 @@ export type RegionProps = {
   id: number;
   name: string;
   tax: number;
+  driverLimitPerMonth: number
 };
 
 export default function Region() {
@@ -67,6 +68,7 @@ export default function Region() {
                 <TableHead>Id</TableHead>
                 <TableHead>Nome</TableHead>
                 <TableHead>Taxa</TableHead>
+                <TableHead>Limite de viagens do motorista</TableHead>
                 <TableHead>Ações</TableHead>
               </TableRow>
             </TableHeader>
@@ -80,6 +82,7 @@ export default function Region() {
                     id={region.id}
                     name={region.name}
                     tax={region.tax}
+                    driverLimitPerMonth={region.driverLimitPerMonth}
                     onDelete={deleteRegion}
                     onUpdate={updateRegion}
                   />

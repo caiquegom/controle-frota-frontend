@@ -12,6 +12,7 @@ import {
 import {
   Form,
   FormControl,
+  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -29,12 +30,9 @@ import { z } from 'zod';
 import { RegionProps } from '..';
 
 type RegionItemProps = {
-  id: number;
-  name: string;
-  tax: number;
   onDelete: (id: number) => void;
   onUpdate: (updatedRegion: RegionProps) => void;
-};
+} & RegionProps
 
 const formSchema = z.object({
   name: z
@@ -44,12 +42,14 @@ const formSchema = z.object({
     .number()
     .min(0, { message: 'A taxa deve ser um número positivo.' })
     .max(1, { message: 'A taxa deve ser um número entre 0 e 1.' }),
+  driverLimitPerMonth: z.coerce.number({ message: 'O valor deve ser um número' }).nonnegative({ message: 'O valor não pode ser negativo' }).int({ message: 'O valor deve ser inteiro' }).max(30, 'O valor deve ser menor que 30')
 });
 
 export default function RegionTableItem({
   id,
   name: initialName,
   tax: initialTax,
+  driverLimitPerMonth: initialDriverLimitPerMonth,
   onDelete,
   onUpdate,
 }: RegionItemProps) {
@@ -62,6 +62,7 @@ export default function RegionTableItem({
     defaultValues: {
       name: initialName,
       tax: initialTax,
+      driverLimitPerMonth: initialDriverLimitPerMonth
     },
   });
 
@@ -76,7 +77,7 @@ export default function RegionTableItem({
 
   const onSubmit = async (data: z.infer<typeof formSchema>) => {
     try {
-      if (data.name === initialName && data.tax === initialTax) {
+      if (data.name === initialName && data.tax === initialTax && data.driverLimitPerMonth === initialDriverLimitPerMonth) {
         toast({
           title: 'Nenhuma alteração foi feita.',
         });
@@ -86,7 +87,7 @@ export default function RegionTableItem({
         setEditDialogIsOpen(false);
         toast({
           title: 'Região atualizada com sucesso!',
-          description: `Nome: ${data.name}, Taxa: ${(data.tax * 100).toFixed(2)}%`,
+          description: `Nome: ${data.name}, Taxa: ${(data.tax * 100).toFixed(2)}%, Limite: ${data.driverLimitPerMonth}`,
         });
       }
     } catch (error) {
@@ -99,6 +100,7 @@ export default function RegionTableItem({
       <TableCell className="font-medium">{id}</TableCell>
       <TableCell className="w-fit">{initialName}</TableCell>
       <TableCell>{(initialTax * 100).toFixed(2)}%</TableCell>
+      <TableCell>{initialDriverLimitPerMonth}</TableCell>
       <TableCell className="flex">
         <Dialog open={editDialogIsOpen} onOpenChange={setEditDialogIsOpen}>
           <DialogTrigger asChild>
@@ -123,12 +125,12 @@ export default function RegionTableItem({
                   control={form.control}
                   name="name"
                   render={({ field }) => (
-                    <FormItem>
+                    <FormItem className='col-span-2'>
                       <FormLabel>Nome</FormLabel>
                       <FormControl>
                         <Input
                           defaultValue={initialName}
-                          placeholder="Digite o nome da carga"
+                          placeholder="Digite o nome da região"
                           {...field}
                         />
                       </FormControl>
@@ -161,6 +163,21 @@ export default function RegionTableItem({
                     </FormItem>
                   )}
                 />
+                <FormField control={form.control} name="driverLimitPerMonth" render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Entregas do caminhão (por mês)</FormLabel>
+                    <FormControl>
+                      <Input
+                        type="number"
+                        step="1"
+                        placeholder="Digite o valor"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormDescription>Informe 0 caso não queira limite</FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )} />
                 <Button
                   className="bg-green-600 hover:bg-green-700"
                   type="submit"

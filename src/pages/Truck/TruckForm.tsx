@@ -19,7 +19,7 @@ import { useNavigate } from 'react-router-dom';
 import * as z from 'zod';
 
 const formSchema = z.object({
-  plate: z.string().length(7, 'A placa precisa ter ter 7 caracteres.'),
+  plate: z.string().refine((value) => /^[a-zA-Z]{3}[0-9][A-Za-z0-9][0-9]{2}$/.test(value ?? ""), 'Digite uma placa válida. Exemplo: XXX0000'),
   brand: z.string().min(1, 'A marca não pode estar vazia.'),
   model: z.string().min(1, 'O modelo não pode estar vazio.'),
   year: z.string().length(4, 'O ano deve ter 4 caracteres.').refine((year) => {
@@ -51,7 +51,7 @@ export default function TruckForm() {
       form.reset();
       toast({
         title: 'Caminhão cadastrado com sucesso!',
-        description: `${values.brand} ${values.model} - Ano: ${values.year}`,
+        description: `${values.brand} ${values.model} - Placa: ${values.plate}`,
         action: (
           <ToastAction altText="Visualizar" onClick={() => navigate('/trucks')}>
             Visualizar
@@ -80,7 +80,7 @@ export default function TruckForm() {
                   <FormItem className="col-span-2">
                     <FormLabel>Placa</FormLabel>
                     <FormControl>
-                      <Input placeholder="Digite a placa do caminhão" {...field} />
+                      <Input placeholder="XXX0000" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
