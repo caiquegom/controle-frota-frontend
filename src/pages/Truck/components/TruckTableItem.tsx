@@ -1,12 +1,4 @@
 import { Button } from '@/components/ui/button';
-import { TableCell, TableRow } from '@/components/ui/table';
-import { TruckProps } from '..';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { SquarePen, Trash } from 'lucide-react';
-import { useState } from 'react';
-import { useForm } from 'react-hook-form';
-import { z } from 'zod';
-import { useToast } from '@/components/ui/use-toast';
 import {
   Dialog,
   DialogClose,
@@ -27,17 +19,19 @@ import {
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { TableCell, TableRow } from '@/components/ui/table';
+import { useToast } from '@/components/ui/use-toast';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { SquarePen, Trash } from 'lucide-react';
+import { useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { z } from 'zod';
+import { TruckProps } from '..';
 
 type TruckItemProps = {
-  id: number;
-  name: string;
-  brand: string;
-  model: string;
-  year: string;
-  capacity: number;
   onDelete: (id: number) => void;
   onUpdate: (updatedTruck: TruckProps) => void;
-};
+} & TruckProps
 
 const formSchema = z.object({
   name: z.string().min(3, 'O nome precisa ter pelo menos 3 caracteres.'),
@@ -277,7 +271,7 @@ export default function TruckTableItem({
                 <Label className="text-right">Marca</Label>
                 <Input
                   readOnly
-                  id="name"
+                  id="brand"
                   defaultValue={initialBrand}
                   className="col-span-3"
                 />
@@ -286,7 +280,7 @@ export default function TruckTableItem({
                 <Label className="text-right">Modelo</Label>
                 <Input
                   readOnly
-                  id="name"
+                  id="model"
                   defaultValue={initialModel}
                   className="col-span-3"
                 />
@@ -296,7 +290,7 @@ export default function TruckTableItem({
                 <Label className="text-right">Ano</Label>
                 <Input
                   readOnly
-                  id="name"
+                  id="year"
                   defaultValue={initialYear}
                   className="col-span-3"
                 />
@@ -306,7 +300,7 @@ export default function TruckTableItem({
                 <Label className="text-right">Capacidade</Label>
                 <Input
                   readOnly
-                  id="name"
+                  id="capacity"
                   defaultValue={initialCapacity}
                   className="col-span-3"
                 />

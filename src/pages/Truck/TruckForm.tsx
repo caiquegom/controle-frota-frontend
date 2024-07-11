@@ -18,21 +18,21 @@ import { useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
 import * as z from 'zod';
 
+const formSchema = z.object({
+  name: z.string().min(3, 'O nome precisa ter pelo menos 3 caracteres.'),
+  brand: z.string().min(1, 'A marca não pode estar vazia.'),
+  model: z.string().min(1, 'O modelo não pode estar vazio.'),
+  year: z.string().length(4, 'O ano deve ter 4 caracteres.').refine((year) => {
+    const numYear = parseInt(year, 10);
+    const currentYear = new Date().getFullYear();
+    return !isNaN(numYear) && numYear >= 2000 && numYear <= currentYear;
+  }, 'O ano deve ser um número válido entre 2000 e o ano atual.'),
+  capacity: z.number().min(1, 'A capacidade deve ser maior que 0.'),
+});
+
 export default function TruckForm() {
   const navigate = useNavigate();
   const { toast } = useToast();
-
-  const formSchema = z.object({
-    name: z.string().min(3, 'O nome precisa ter pelo menos 3 caracteres.'),
-    brand: z.string().min(1, 'A marca não pode estar vazia.'),
-    model: z.string().min(1, 'O modelo não pode estar vazio.'),
-    year: z .string() .length(4, 'O ano deve ter 4 caracteres.') .refine((year) => {  
-      const numYear = parseInt(year, 10);  
-      const currentYear = new Date().getFullYear();   
-      return !isNaN(numYear) && numYear >= 2000 && numYear <= currentYear;
-    }, 'O ano deve ser um número válido entre 2000 e o ano atual.'),
-    capacity: z.number().min(1, 'A capacidade deve ser maior que 0.'),
-  });
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),

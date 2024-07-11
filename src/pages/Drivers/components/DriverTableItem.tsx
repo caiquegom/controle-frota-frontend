@@ -1,53 +1,32 @@
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { TableCell, TableRow } from "@/components/ui/table";
-import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/components/ui/use-toast";
+import { clearNumberFormat, formatPhoneNumber } from "@/utils/helperFunctions";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { Label } from "@radix-ui/react-label";
 import { SquarePen, Trash } from "lucide-react";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-import { CargoProps } from "..";
+import { DriverProps } from "..";
 
-const cargoTypeOptions = {
-  eletronic: {
-    label: "Eletrônico",
-    badge: <Badge className="bg-blue-900">Eletrônico</Badge>
-  },
-  fuel: {
-    label: "Combustível",
-    badge: <Badge className="bg-green-900">Combustível</Badge>
-  },
-  other: {
-    label: "Outro",
-    badge: <Badge className="bg-black">Outro</Badge>
-  }
-}
-
-type CargoItemsProps = {
+type DriverItemsProps = {
   onDelete: (id: number) => void;
-  onUpdate: (updatedCargo: CargoProps) => void;
-} & CargoProps
+  onUpdate: (updatedDriver: DriverProps) => void;
+} & DriverProps
 
 const formSchema = z.object({
-  name: z
-    .string()
-    .min(2, { message: 'O nome da carga deve ter pelo menos 2 caracteres.' }),
-  type: z.enum(["eletronic", "fuel", "other"]),
-  description: z
-    .string()
-    .min(5, { message: 'A descrição da carga deve ter pelo menos 5 caracteres.' })
-    .max(150, { message: 'A descrição da carga deve ter no máximo 150 caracteres.' })
+  name: z.string().min(1, 'O campo é obrigatório'),
+  email: z.string().email({ message: 'O campo precisa ser um e-mail válido' }),
+  phone: z.string().length(15, 'O telefone deve ter 11 caracteres'),
 });
 
-export default function CargoTableItem({ id, name: initialName, type: initialType, description: initialDescription, onDelete, onUpdate }: CargoItemsProps) {
+export default function DriverTableItem({ id, name: initialName, email: initialEmail, phone: initialPhone, onDelete, onUpdate }: DriverItemsProps) {
   const { toast } = useToast();
+
   const [dialogIsOpen, setDialogIsOpen] = useState(false);
   const [editDialogIsOpen, setEditDialogIsOpen] = useState(false);
 
@@ -55,37 +34,40 @@ export default function CargoTableItem({ id, name: initialName, type: initialTyp
     resolver: zodResolver(formSchema),
     defaultValues: {
       name: initialName,
-      type: initialType,
-      description: initialDescription
+      email: initialEmail,
+      phone: initialPhone,
     },
   });
 
   async function handleDelete() {
     onDelete(id);
     toast({
-      title: 'Carga excluída com sucesso!',
+      title: 'Motorista excluído com sucesso!',
       variant: 'destructive',
     });
     setDialogIsOpen(false);
   }
 
   const onSubmit = async (data: z.infer<typeof formSchema>) => {
-    try {
-      if (data.name === initialName && data.type === initialType && data.description === initialDescription) {
-        toast({
-          title: 'Nenhuma alteração foi feita.',
-        });
-      } else {
-        const updatedCargo = { id, ...data }
-        await onUpdate(updatedCargo);
+    if (data.name === initialName && data.email === initialEmail && data.phone === initialPhone) {
+      toast({
+        title: 'Nenhuma alteração foi feita.',
+      });
+    } else {
+      try {
+        const updatedDriver = { ...data, id, phone: clearNumberFormat(data.phone) };
+        onUpdate(updatedDriver);
         setEditDialogIsOpen(false);
         toast({
-          title: 'Carga atualizada com sucesso!',
-          description: `Carga ${data.name} foi atualizado`,
+          title: 'Motorista atualizado com sucesso!',
+          description: `${data.name} atualizado`,
+        });
+      } catch (error: any) {
+        toast({
+          title: 'Erro ao tentar cadastrar!',
+          description: `${error.message}`,
         });
       }
-    } catch (error) {
-      console.error('Error', error)
     }
   };
 
@@ -94,9 +76,15 @@ export default function CargoTableItem({ id, name: initialName, type: initialTyp
       <TableCell className="font-medium">{id}</TableCell>
       <TableCell className="w-fit">{initialName}</TableCell>
       <TableCell className="w-fit">
-        {cargoTypeOptions[initialType].badge}
+        <a href={`mailto:${initialEmail}`} target="_blank" className="cursor-pointer text-blue-800 underline">
+          {initialEmail}
+        </a>
       </TableCell>
-      <TableCell>{initialDescription ?? '-'}</TableCell>
+      <TableCell>
+        <a href={`https://wa.me/+55${initialPhone}`} target="_blank" className="cursor-pointer text-blue-800 underline">
+          {formatPhoneNumber(initialPhone)}
+        </a>
+      </TableCell>
       <TableCell className="flex">
         <Dialog open={editDialogIsOpen} onOpenChange={setEditDialogIsOpen}>
           <DialogTrigger asChild>
@@ -109,7 +97,7 @@ export default function CargoTableItem({ id, name: initialName, type: initialTyp
           </DialogTrigger>
           <DialogContent className="sm:max-w-md">
             <DialogHeader>
-              <DialogTitle>Editar Carga</DialogTitle>
+              <DialogTitle>Editar Motorista</DialogTitle>
               <DialogDescription>Edite os campos abaixo.</DialogDescription>
             </DialogHeader>
             <Form {...form}>
@@ -126,7 +114,7 @@ export default function CargoTableItem({ id, name: initialName, type: initialTyp
                       <FormControl>
                         <Input
                           defaultValue={initialName}
-                          placeholder="Digite o nome da carga"
+                          placeholder="Digite o nome do motorista"
                           {...field}
                         />
                       </FormControl>
@@ -136,21 +124,17 @@ export default function CargoTableItem({ id, name: initialName, type: initialTyp
                 />
                 <FormField
                   control={form.control}
-                  name="type"
+                  name="email"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Tipo de carga</FormLabel>
+                      <FormLabel>E-mail</FormLabel>
                       <FormControl>
-                        <Select onValueChange={field.onChange} defaultValue={field.value}>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Selecione um tipo de carga" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="eletronic">Eletrônico</SelectItem>
-                            <SelectItem value="fuel">Combustível</SelectItem>
-                            <SelectItem value="other">Outro</SelectItem>
-                          </SelectContent>
-                        </Select>
+                        <Input
+                          defaultValue={initialEmail}
+                          type="email"
+                          placeholder="Digite o e-mail"
+                          {...field}
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -158,17 +142,25 @@ export default function CargoTableItem({ id, name: initialName, type: initialTyp
                 />
                 <FormField
                   control={form.control}
-                  name="description"
+                  name="phone"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Nome</FormLabel>
+                      <FormLabel>Telefone</FormLabel>
                       <FormControl>
-                        <Textarea placeholder="Digite o nome da carga" className="resize-none" defaultValue={initialDescription} {...field} />
+                        <Input
+                          defaultValue={formatPhoneNumber(initialPhone)}
+                          placeholder="Digite o telefone"
+                          {...field}
+                          onChange={(e) => {
+                            form.setValue("phone", formatPhoneNumber(e.target.value));
+                          }}
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
+
                 <Button
                   className="bg-green-600 hover:bg-green-700"
                   type="submit"
@@ -199,7 +191,7 @@ export default function CargoTableItem({ id, name: initialName, type: initialTyp
             </DialogHeader>
             <div className="grid gap-4 py-4">
               <div className="grid grid-cols-4 items-center gap-4">
-                <Label className="text-right">Carga</Label>
+                <Label className="text-right">Nome</Label>
                 <Input
                   readOnly
                   id="name"
@@ -208,20 +200,20 @@ export default function CargoTableItem({ id, name: initialName, type: initialTyp
                 />
               </div>
               <div className="grid grid-cols-4 items-center gap-4">
-                <Label className="text-right">Tipo de carga</Label>
+                <Label className="text-right">E-mail</Label>
                 <Input
                   readOnly
-                  id="type"
-                  defaultValue={cargoTypeOptions[initialType].label}
+                  id="email"
+                  defaultValue={initialEmail}
                   className="col-span-3"
                 />
               </div>
               <div className="grid grid-cols-4 items-center gap-4">
-                <Label className="text-right">Descrição</Label>
-                <Textarea
+                <Label className="text-right">Telefone</Label>
+                <Input
                   readOnly
-                  id="description"
-                  defaultValue={initialDescription}
+                  id="phone"
+                  defaultValue={formatPhoneNumber(initialPhone)}
                   className="col-span-3"
                 />
               </div>
