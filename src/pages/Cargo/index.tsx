@@ -66,16 +66,14 @@ export default function Cargo() {
             </TableHeader>
             <TableBody>
               {loading ? (<CargoTableSkeleton />) : (
-                (!cargosList || cargosList.length === 0) ? (
-                  <NoItemsFound />
-                ) : cargosList.map(cargo => (
+                cargosList?.map(cargo => (
                   <CargoTableItem id={cargo.id} name={cargo.name} type={cargo.type} description={cargo.description} onDelete={deleteCargo} onUpdate={updateCargo} />
-                ))
-              )}
+                )))}
             </TableBody>
           </Table>
+          {(!loading && (!cargosList || cargosList.length === 0)) && <NoItemsFound />}
         </CardContent>
-      </Card>
+      </Card >
     </>
   )
 }
