@@ -13,11 +13,6 @@ type ResponseSuccess = {
   data: any
 }
 
-// type ResponseError = {
-//   status: "error",
-//   message: string | string[]
-// }
-
 axios.defaults.baseURL = import.meta.env.VITE_API_URL;
 
 const useAxios = ({ url, method, body = null, headers = null }: AxiosHookProps) => {

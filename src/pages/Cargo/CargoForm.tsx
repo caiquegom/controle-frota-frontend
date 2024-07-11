@@ -62,7 +62,6 @@ function CargoForm() {
                 </FormItem>
               )} />
 
-
               <FormField
                 control={form.control}
                 name="type"
