@@ -17,7 +17,7 @@ import TruckTableSkeleton from './components/TruckTableSkeleton';
 
 export type TruckProps = {
   id: number;
-  name: string;
+  plate: string;
   brand: string;
   model: string;
   year: string;
@@ -74,7 +74,7 @@ export default function Truck() {
             <TableHeader>
               <TableRow>
                 <TableHead>Id</TableHead>
-                <TableHead>Nome</TableHead>
+                <TableHead>Placa</TableHead>
                 <TableHead>Marca</TableHead>
                 <TableHead>Modelo</TableHead>
                 <TableHead>Ano</TableHead>
@@ -90,7 +90,7 @@ export default function Truck() {
                   <TruckTableItem
                     key={truck.id}
                     id={truck.id}
-                    name={truck.name}
+                    plate={truck.plate}
                     brand={truck.brand}
                     capacity={truck.capacity}
                     model={truck.model}

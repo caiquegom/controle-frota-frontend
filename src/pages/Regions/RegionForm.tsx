@@ -16,20 +16,20 @@ export default function RegionForm() {
   const navigate = useNavigate();
   const { toast } = useToast();
 
-  const formSchema = z.object({
+  const FormSchema = z.object({
     name: z.string().min(3, 'O nome da região precisa ter pelo menos 3 caracteres.'),
     tax: z.number({ message: 'A taxa deve ser um número.' }).min(0, 'Taxa não pode ser menor que 0').max(1, 'Taxa não pode ser maior que 1'),
   });
 
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
+  const form = useForm<z.infer<typeof FormSchema>>({
+    resolver: zodResolver(FormSchema),
     defaultValues: {
       name: '',
       tax: 0,
     },
   });
 
-  async function onSubmit(values: z.infer<typeof formSchema>) {
+  async function onSubmit(values: z.infer<typeof FormSchema>) {
     try {
       await axios.post('/region', values);
       form.reset();

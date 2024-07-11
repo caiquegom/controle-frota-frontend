@@ -56,7 +56,7 @@ export default function Settings() {
       <h1 className="text-2xl font-semibold pb-4">Configurações</h1>
       <Card>
         <CardContent className="pt-4">
-          <h2 className="text-lg font-semibold mb-2">Definir limite</h2>
+          <h2 className="text-lg font-semibold mb-2">Definir limites</h2>
           {loading ? (
             <SettingsSkeleton />
           ) : (
@@ -91,7 +91,6 @@ export default function Settings() {
                       />
                     </FormControl>
                     <FormDescription>Informe 0 caso não queira limite</FormDescription>
-
                     <FormMessage />
                   </FormItem>
                 )} />

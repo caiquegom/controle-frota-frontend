@@ -19,7 +19,7 @@ import { useNavigate } from 'react-router-dom';
 import * as z from 'zod';
 
 const formSchema = z.object({
-  name: z.string().min(3, 'O nome precisa ter pelo menos 3 caracteres.'),
+  plate: z.string().length(7, 'A placa precisa ter ter 7 caracteres.'),
   brand: z.string().min(1, 'A marca não pode estar vazia.'),
   model: z.string().min(1, 'O modelo não pode estar vazio.'),
   year: z.string().length(4, 'O ano deve ter 4 caracteres.').refine((year) => {
@@ -37,7 +37,7 @@ export default function TruckForm() {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      name: '',
+      plate: '',
       brand: '',
       model: '',
       year: '',
@@ -75,12 +75,12 @@ export default function TruckForm() {
             >
               <FormField
                 control={form.control}
-                name="name"
+                name="plate"
                 render={({ field }) => (
                   <FormItem className="col-span-2">
-                    <FormLabel>Nome</FormLabel>
+                    <FormLabel>Placa</FormLabel>
                     <FormControl>
-                      <Input placeholder="Digite o nome do caminhão" {...field} />
+                      <Input placeholder="Digite a placa do caminhão" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>

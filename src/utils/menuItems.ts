@@ -28,7 +28,7 @@ type menuItemsType = {
 const menuItems: menuItemsType[] = [
   {
     name: 'Dashboard',
-    path: '/dashboard',
+    path: '/',
     component: Dashboard,
     icon: HomeIcon,
   },
