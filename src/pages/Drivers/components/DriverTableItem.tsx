@@ -49,16 +49,12 @@ export default function DriverTableItem({ id, name: initialName, email: initialE
   }
 
   const onSubmit = async (data: z.infer<typeof formSchema>) => {
-    try {
-      if (
-        data.name === initialName &&
-        data.email === initialEmail &&
-        data.phone === initialPhone
-      ) {
-        toast({
-          title: 'Nenhuma alteração foi feita.',
-        });
-      } else {
+    if (data.name === initialName && data.email === initialEmail && data.phone === initialPhone) {
+      toast({
+        title: 'Nenhuma alteração foi feita.',
+      });
+    } else {
+      try {
         const updatedDriver = { ...data, id, phone: clearNumberFormat(data.phone) };
         onUpdate(updatedDriver);
         setEditDialogIsOpen(false);
@@ -66,12 +62,12 @@ export default function DriverTableItem({ id, name: initialName, email: initialE
           title: 'Motorista atualizado com sucesso!',
           description: `${data.name} atualizado`,
         });
+      } catch (error: any) {
+        toast({
+          title: 'Erro ao tentar cadastrar!',
+          description: `${error.message}`,
+        });
       }
-    } catch (error: any) {
-      toast({
-        title: 'Ocorreu uma falha!',
-        description: `${error.message}`,
-      });
     }
   };
 
@@ -131,7 +127,7 @@ export default function DriverTableItem({ id, name: initialName, email: initialE
                   name="email"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Marca</FormLabel>
+                      <FormLabel>E-mail</FormLabel>
                       <FormControl>
                         <Input
                           defaultValue={initialEmail}
