@@ -1,18 +1,20 @@
 import { Button } from '@/components/ui/button';
+import { Calendar } from '@/components/ui/calendar';
 import { Card, CardContent } from '@/components/ui/card';
-import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { ToastAction } from '@/components/ui/toast';
 import { toast } from '@/components/ui/use-toast';
 import useAxios from '@/hooks/useAxios';
 import { cn } from '@/lib/utils';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Checkbox } from '@radix-ui/react-checkbox';
-import { Popover, PopoverContent, PopoverTrigger } from '@radix-ui/react-popover';
-import { ToastAction } from '@radix-ui/react-toast';
+import { PopoverClose } from '@radix-ui/react-popover';
 import axios, { AxiosError } from 'axios';
-import { Calendar, CalendarIcon } from 'lucide-react';
-import { format } from 'path';
+import { format } from 'date-fns';
+import { CalendarIcon } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
@@ -31,7 +33,7 @@ const FormSchema = z.object({
   totalValue: z.number(),
   tax: z.number(),
   taxValue: z.number(),
-  deliveryDate: z.coerce.date().refine((data) => data > new Date(), { message: 'A data de entrega deve ser no futuro' }),
+  deliveryDate: z.date({ message: 'O campo é obrigatório' }).refine((data) => data > new Date(), { message: 'A data de entrega deve ser no futuro' }),
   hasInsurance: z.boolean().default(false).optional(),
   isDangerous: z.boolean().default(false).optional(),
   isValuable: z.boolean().default(false).optional(),
@@ -73,7 +75,7 @@ export default function DeliveryForm() {
       totalValue: 0,
       tax: 0,
       taxValue: 0,
-      deliveryDate: new Date(),
+      deliveryDate: undefined,
       hasInsurance: false,
     },
   });
@@ -134,6 +136,8 @@ export default function DeliveryForm() {
     if (calculatedTotalValue >= 30000) {
       form.setValue('isValuable', true)
     }
+
+    form.watch()
   };
 
   useEffect(() => {
@@ -142,8 +146,12 @@ export default function DeliveryForm() {
 
   async function onSubmit(values: z.infer<typeof FormSchema>) {
     try {
-      await axios.post('/delivery', values);
+      await axios.post('/delivery', { ...values, deliveryDate: new Date(values.deliveryDate) });
       form.reset();
+      form.setValue('destinyId', 0)
+      form.setValue('cargoId', 0)
+      form.setValue('truckId', 0)
+
       toast({
         title: 'Entrega cadastrada com sucesso!',
         action: (
@@ -188,7 +196,7 @@ export default function DeliveryForm() {
                 control={form.control}
                 name="deliveryDate"
                 render={({ field }) => (
-                  <FormItem className="flex flex-col">
+                  <FormItem>
                     <FormLabel>Data de entrega</FormLabel>
                     <Popover>
                       <PopoverTrigger asChild>
@@ -196,34 +204,33 @@ export default function DeliveryForm() {
                           <Button
                             variant={"outline"}
                             className={cn(
-                              "w-[240px] pl-3 text-left font-normal",
+                              "w-full pl-3 text-left font-normal",
                               !field.value && "text-muted-foreground"
                             )}
                           >
                             {field.value ? (
-                              format(field.value, "PPP")
+                              format(field.value, "dd/MM/y")
                             ) : (
-                              <span>Pick a date</span>
+                              <span>Selecionar data</span>
                             )}
                             <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
                           </Button>
                         </FormControl>
                       </PopoverTrigger>
                       <PopoverContent className="w-auto p-0" align="start">
-                        <Calendar
-                          mode="single"
-                          selected={field.value}
-                          onSelect={field.onChange}
-                          disabled={(date) =>
-                            date > new Date() || date < new Date("1900-01-01")
-                          }
-                          initialFocus
-                        />
+                        <PopoverClose>
+                          <Calendar
+                            mode="single"
+                            onSelect={field.onChange}
+                            disabled={(date) =>
+                              date < new Date()
+                            }
+                            initialFocus
+
+                          />
+                        </PopoverClose>
                       </PopoverContent>
                     </Popover>
-                    <FormDescription>
-                      Your date of birth is used to calculate your age.
-                    </FormDescription>
                     <FormMessage />
                   </FormItem>
                 )}
@@ -232,7 +239,7 @@ export default function DeliveryForm() {
                 control={form.control}
                 name="destinyId"
                 render={() => (
-                  <FormItem className="col-span-2">
+                  <FormItem>
                     <FormLabel>Destino</FormLabel>
                     <Select onValueChange={handleChangeDestiny}>
                       <FormControl>

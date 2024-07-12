@@ -67,7 +67,7 @@ export default function Cargo() {
             <TableBody>
               {loading ? (<CargoTableSkeleton />) : (
                 cargosList?.map(cargo => (
-                  <CargoTableItem id={cargo.id} name={cargo.name} type={cargo.type} description={cargo.description} onDelete={deleteCargo} onUpdate={updateCargo} />
+                  <CargoTableItem key={cargo.id} id={cargo.id} name={cargo.name} type={cargo.type} description={cargo.description} onDelete={deleteCargo} onUpdate={updateCargo} />
                 )))}
             </TableBody>
           </Table>
