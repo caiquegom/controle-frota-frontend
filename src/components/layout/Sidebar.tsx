@@ -10,7 +10,7 @@ export default function Sidebar() {
           <UserRound size={25} color="white" />
         </div>
         <div>
-          <p className="text-sm font-semibold text-gray-300">Usuário</p>
+          <p className="text-sm font-semibold text-gray-100">Usuário</p>
           <p className="text-xs text-gray-400">Perfil: administrador</p>
         </div>
       </div>

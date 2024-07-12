@@ -1,4 +1,5 @@
 import NoItemsFound from '@/components/NoItemsFound';
+import TableSkeleton from '@/components/TableSkeleton';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import {
@@ -8,16 +9,16 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
+import { toast } from '@/components/ui/use-toast';
 import useAxios from '@/hooks/useAxios';
-import axios from 'axios';
+import axios, { AxiosError } from 'axios';
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import TruckTableItem from './components/TruckTableItem';
-import TruckTableSkeleton from './components/TruckTableSkeleton';
 
 export type TruckProps = {
   id: number;
-  name: string;
+  plate: string;
   brand: string;
   model: string;
   year: string;
@@ -26,20 +27,25 @@ export type TruckProps = {
 
 export default function Truck() {
   const navigate = useNavigate();
+  const tableHeaders = ["Id", "Placa", "Marca", "Modelo", "Ano", "Capacidade(t)", "Ações"];
   const { response, loading } = useAxios({ url: '/trucks', method: 'get' });
   const [trucksList, setTrucksList] = useState<TruckProps[]>([]);
-
-  useEffect(() => {
-    if (!response) return;
-    setTrucksList(response?.data);
-  }, [response]);
 
   async function deleteTruck(id: number) {
     try {
       await axios.delete(`/truck/${id}`);
       setTrucksList(trucksList.filter((truck) => truck.id !== id));
+      toast({
+        title: 'Caminhão excluído com sucesso!',
+      })
     } catch (error) {
-      console.error('Error:', error);
+      if (error instanceof AxiosError) {
+        toast({
+          title: 'Erro ao tentar deletar!',
+          description: `${error.response?.data.message}`,
+          variant: "destructive"
+        });
+      }
     }
   }
 
@@ -56,9 +62,20 @@ export default function Truck() {
         ),
       );
     } catch (error) {
-      console.error('Erro ao atualizar:', error);
+      if (error instanceof AxiosError) {
+        toast({
+          title: 'Erro ao tentar atualizar!',
+          description: `${error.response?.data.message}`,
+          variant: "destructive"
+        });
+      }
     }
   }
+
+  useEffect(() => {
+    if (!response) return
+    setTrucksList(response.data)
+  }, [response])
 
   return (
     <>
@@ -73,24 +90,20 @@ export default function Truck() {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Id</TableHead>
-                <TableHead>Nome</TableHead>
-                <TableHead>Marca</TableHead>
-                <TableHead>Modelo</TableHead>
-                <TableHead>Ano</TableHead>
-                <TableHead>Capacidade(t)</TableHead>
-                <TableHead>Ações</TableHead>
+                {tableHeaders.map((thead) => (
+                  <TableHead>{thead}</TableHead>
+                ))}
               </TableRow>
             </TableHeader>
             <TableBody>
               {loading ? (
-                <TruckTableSkeleton />
+                <TableSkeleton columnsAmount={tableHeaders.length} />
               ) : (
                 trucksList?.map((truck: TruckProps) => (
                   <TruckTableItem
                     key={truck.id}
                     id={truck.id}
-                    name={truck.name}
+                    plate={truck.plate}
                     brand={truck.brand}
                     capacity={truck.capacity}
                     model={truck.model}

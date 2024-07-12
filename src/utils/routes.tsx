@@ -1,4 +1,5 @@
 import CargoForm from '@/pages/Cargo/CargoForm';
+import DeliveryForm from '@/pages/Deliveries/DeliveryForm';
 import DriverForm from '@/pages/Drivers/DriverForm';
 import RegionForm from '@/pages/Regions/RegionForm';
 import TruckForm from '@/pages/Truck/TruckForm';
@@ -25,8 +26,11 @@ routes.push(
   {
     path: '/driver/add',
     element: <DriverForm />
+  },
+  {
+    path: '/delivery/add',
+    element: <DeliveryForm />
   }
-
 )
 
 export default routes;

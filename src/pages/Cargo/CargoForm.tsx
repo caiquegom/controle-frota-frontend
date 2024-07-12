@@ -89,7 +89,7 @@ function CargoForm() {
                 <FormItem className="col-span-2">
                   <FormLabel>Descrição</FormLabel>
                   <FormControl>
-                    <Textarea placeholder="Digite o nome da carga" className="resize-none" {...field} />
+                    <Textarea placeholder="Digite a descrição da carga" className="resize-none" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>

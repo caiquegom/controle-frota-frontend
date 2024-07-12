@@ -1,23 +1,27 @@
 import NoItemsFound from "@/components/NoItemsFound";
+import TableSkeleton from "@/components/TableSkeleton";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Table, TableBody, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { toast } from "@/components/ui/use-toast";
 import useAxios from "@/hooks/useAxios";
-import axios from "axios";
+import axios, { AxiosError } from "axios";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { DeliveryProps } from "../Deliveries";
 import CargoTableItem from "./components/CargoTableItem";
-import CargoTableSkeleton from "./components/CargoTableSkeleton";
 
 export type CargoProps = {
   id: number,
   name: string,
   type: 'eletronic' | 'fuel' | 'other'
   description?: string,
+  delivery?: DeliveryProps,
 }
 
 export default function Cargo() {
   const navigate = useNavigate();
+  const tableHeaders = ['Id', 'Nome', 'Tipo de carga', 'Descrição', 'Entrega (id)', 'Ações']
   const { response, loading } = useAxios({ url: '/cargos', method: 'get' })
   const [cargosList, setCargoList] = useState<CargoProps[]>([])
 
@@ -25,8 +29,17 @@ export default function Cargo() {
     try {
       await axios.delete(`/cargo/${id}`);
       setCargoList(cargosList.filter(cargo => cargo.id !== id));
+      toast({
+        title: 'Carga excluída com sucesso!',
+      })
     } catch (error) {
-      console.error('Error:', error);
+      if (error instanceof AxiosError) {
+        toast({
+          title: 'Erro ao tentar deletar!',
+          description: `${error.response?.data.message}`,
+          variant: "destructive"
+        });
+      }
     }
   }
 
@@ -57,17 +70,15 @@ export default function Cargo() {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Id</TableHead>
-                <TableHead>Nome</TableHead>
-                <TableHead>Tipo de carga</TableHead>
-                <TableHead>Descrição</TableHead>
-                <TableHead>Ações</TableHead>
+                {tableHeaders.map((thead) => (
+                  <TableHead>{thead}</TableHead>
+                ))}
               </TableRow>
             </TableHeader>
             <TableBody>
-              {loading ? (<CargoTableSkeleton />) : (
+              {loading ? (<TableSkeleton columnsAmount={tableHeaders.length} />) : (
                 cargosList?.map(cargo => (
-                  <CargoTableItem id={cargo.id} name={cargo.name} type={cargo.type} description={cargo.description} onDelete={deleteCargo} onUpdate={updateCargo} />
+                  <CargoTableItem key={cargo.id} id={cargo.id} name={cargo.name} type={cargo.type} description={cargo.description} deliveryId={cargo.delivery?.id} onDelete={deleteCargo} onUpdate={updateCargo} />
                 )))}
             </TableBody>
           </Table>

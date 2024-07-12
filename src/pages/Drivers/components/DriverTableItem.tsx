@@ -8,7 +8,7 @@ import { clearNumberFormat, formatPhoneNumber } from "@/utils/helperFunctions";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Label } from "@radix-ui/react-label";
 import { SquarePen, Trash } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { DriverProps } from "..";
@@ -41,15 +41,11 @@ export default function DriverTableItem({ id, name: initialName, email: initialE
 
   async function handleDelete() {
     onDelete(id);
-    toast({
-      title: 'Motorista excluído com sucesso!',
-      variant: 'destructive',
-    });
     setDialogIsOpen(false);
   }
 
   const onSubmit = async (data: z.infer<typeof formSchema>) => {
-    if (data.name === initialName && data.email === initialEmail && data.phone === initialPhone) {
+    if (data.name === initialName && data.email === initialEmail && data.phone === formatPhoneNumber(initialPhone)) {
       toast({
         title: 'Nenhuma alteração foi feita.',
       });
@@ -70,6 +66,10 @@ export default function DriverTableItem({ id, name: initialName, email: initialE
       }
     }
   };
+
+  useEffect(() => {
+    form.setValue('phone', formatPhoneNumber(form.getValues('phone')));
+  }, [form]);
 
   return (
     <TableRow>

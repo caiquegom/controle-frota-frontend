@@ -22,6 +22,7 @@ import { Label } from '@/components/ui/label';
 import { TableCell, TableRow } from '@/components/ui/table';
 import { useToast } from '@/components/ui/use-toast';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { AxiosError } from 'axios';
 import { SquarePen, Trash } from 'lucide-react';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
@@ -34,7 +35,7 @@ type TruckItemProps = {
 } & TruckProps
 
 const formSchema = z.object({
-  name: z.string().min(3, 'O nome precisa ter pelo menos 3 caracteres.'),
+  plate: z.string().min(3, 'O nome precisa ter pelo menos 3 caracteres.'),
   brand: z.string().min(1, 'A marca não pode estar vazia.'),
   model: z.string().min(1, 'O modelo não pode estar vazio.'),
   year: z
@@ -50,7 +51,7 @@ const formSchema = z.object({
 
 export default function TruckTableItem({
   id,
-  name: initialName,
+  plate: initialPlate,
   brand: initialBrand,
   model: initialModel,
   year: initialYear,
@@ -66,7 +67,7 @@ export default function TruckTableItem({
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      name: initialName,
+      plate: initialPlate,
       brand: initialBrand,
       model: initialModel,
       year: initialYear,
@@ -76,17 +77,13 @@ export default function TruckTableItem({
 
   async function handleDelete() {
     onDelete(id);
-    toast({
-      title: 'Caminhão excluído com sucesso!',
-      variant: 'destructive',
-    });
     setDialogIsOpen(false);
   }
 
   const onSubmit = async (data: z.infer<typeof formSchema>) => {
     try {
       if (
-        data.name === initialName &&
+        data.plate === initialPlate &&
         data.brand === initialBrand &&
         data.model === initialModel &&
         data.year === initialYear &&
@@ -105,14 +102,20 @@ export default function TruckTableItem({
         });
       }
     } catch (error) {
-      console.error('Error:', error);
+      if (error instanceof AxiosError) {
+        toast({
+          title: 'Erro ao tentar cadastrar!',
+          description: `${error.response?.data.message}`,
+          variant: "destructive"
+        });
+      }
     }
   };
 
   return (
     <TableRow>
       <TableCell className="font-medium">{id}</TableCell>
-      <TableCell className="w-fit">{initialName}</TableCell>
+      <TableCell className="w-fit">{initialPlate}</TableCell>
       <TableCell className="w-fit">{initialBrand}</TableCell>
       <TableCell>{initialModel}</TableCell>
       <TableCell>{initialYear}</TableCell>
@@ -139,13 +142,13 @@ export default function TruckTableItem({
               >
                 <FormField
                   control={form.control}
-                  name="name"
+                  name="plate"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Nome</FormLabel>
                       <FormControl>
                         <Input
-                          defaultValue={initialName}
+                          defaultValue={initialPlate}
                           placeholder="Digite o nome da carga"
                           {...field}
                         />
@@ -262,8 +265,8 @@ export default function TruckTableItem({
                 <Label className="text-right">Nome</Label>
                 <Input
                   readOnly
-                  id="name"
-                  defaultValue={initialName}
+                  id="plate"
+                  defaultValue={initialPlate}
                   className="col-span-3"
                 />
               </div>

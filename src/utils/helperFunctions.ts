@@ -9,3 +9,12 @@ export function formatPhoneNumber(value: string) {
 export function clearNumberFormat(value: string) {
   return value.replace(/\D/g, '');
 }
+
+export function formatToReal(value: number) {
+  const Real = Intl.NumberFormat('pt-BR', {
+    style: 'currency',
+    currency: 'BRL',
+  });
+
+  return Real.format(value);
+}

@@ -1,4 +1,5 @@
 import NoItemsFound from '@/components/NoItemsFound';
+import TableSkeleton from '@/components/TableSkeleton';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import {
@@ -8,21 +9,23 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
+import { toast } from '@/components/ui/use-toast';
 import useAxios from '@/hooks/useAxios';
-import axios from 'axios';
+import axios, { AxiosError } from 'axios';
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import RegionTableItem from './components/RegionTableItem';
-import RegionTableSkeleton from './components/RegionTableSkeleton';
 
 export type RegionProps = {
   id: number;
   name: string;
   tax: number;
+  driverLimitPerMonth: number
 };
 
 export default function Region() {
   const navigate = useNavigate();
+  const tableHeaders = ["Id", "Nome", "Taxa", "Limite de viagens do motorista", "Ações"]
   const { response, loading } = useAxios({ url: '/regions', method: 'get' });
   const [regionsList, setRegionsList] = useState<RegionProps[]>([]);
 
@@ -30,8 +33,17 @@ export default function Region() {
     try {
       await axios.delete(`/region/${id}`);
       setRegionsList(regionsList.filter(region => region.id !== id));
+      toast({
+        title: 'Região excluída com sucesso!',
+      })
     } catch (error) {
-      console.error('Error:', error);
+      if (error instanceof AxiosError) {
+        toast({
+          title: 'Erro ao tentar deletar!',
+          description: `${error.response?.data.message}`,
+          variant: "destructive"
+        });
+      }
     }
   }
 
@@ -64,22 +76,22 @@ export default function Region() {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Id</TableHead>
-                <TableHead>Nome</TableHead>
-                <TableHead>Taxa</TableHead>
-                <TableHead>Ações</TableHead>
+                {tableHeaders.map((thead) => (
+                  <TableHead>{thead}</TableHead>
+                ))}
               </TableRow>
             </TableHeader>
             <TableBody>
               {loading ? (
-                <RegionTableSkeleton />
+                <TableSkeleton columnsAmount={tableHeaders.length} />
               ) : (
                 regionsList.map((region: RegionProps) => (
                   <RegionTableItem
                     key={region.id}
                     id={region.id}
                     name={region.name}
-                    tax={region.tax}
+                    tax={region.tax * 100}
+                    driverLimitPerMonth={region.driverLimitPerMonth}
                     onDelete={deleteRegion}
                     onUpdate={updateRegion}
                   />

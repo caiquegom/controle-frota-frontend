@@ -17,7 +17,6 @@ const FormSchema = z.object({
 });
 
 export default function Settings() {
-  // const navigate = useNavigate();
   const { response, loading } = useAxios({ url: '/settings', method: 'get' })
 
   const form = useForm<z.infer<typeof FormSchema>>({
@@ -31,8 +30,8 @@ export default function Settings() {
   useEffect(() => {
     if (!response) return
 
-    form.setValue('driverLimitPerTruck', response.data.driverLimitPerTruck)
-    form.setValue('truckLimitPerMonth', response.data.truckLimitPerMonth)
+    form.setValue('driverLimitPerTruck', response?.data?.driverLimitPerTruck)
+    form.setValue('truckLimitPerMonth', response?.data?.truckLimitPerMonth)
   }, [response])
 
   async function onSubmit(values: z.infer<typeof FormSchema>) {
@@ -44,8 +43,9 @@ export default function Settings() {
     } catch (error: any) {
       if (error instanceof AxiosError) {
         toast({
-          title: "Configurações alteradas com sucesso!",
-          description: error.response?.data.message
+          title: "Erro ao alterar configurações!",
+          description: error.response?.data.message,
+          variant: "destructive"
         })
       }
     }
@@ -56,7 +56,7 @@ export default function Settings() {
       <h1 className="text-2xl font-semibold pb-4">Configurações</h1>
       <Card>
         <CardContent className="pt-4">
-          <h2 className="text-lg font-semibold mb-2">Definir limite</h2>
+          <h2 className="text-lg font-semibold mb-2">Definir limites</h2>
           {loading ? (
             <SettingsSkeleton />
           ) : (
@@ -91,7 +91,6 @@ export default function Settings() {
                       />
                     </FormControl>
                     <FormDescription>Informe 0 caso não queira limite</FormDescription>
-
                     <FormMessage />
                   </FormItem>
                 )} />
