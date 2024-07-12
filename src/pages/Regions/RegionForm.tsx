@@ -38,7 +38,7 @@ export default function RegionForm() {
       form.reset();
       toast({
         title: "Região cadastrada com sucesso!",
-        description: `${values.name} com taxa de ${values.tax * 100}%`,
+        description: `${values.name} com taxa de ${values.tax}%`,
         action: <ToastAction altText="Visualizar" onClick={() => navigate('/regions')}>Visualizar</ToastAction>,
       })
     } catch (error) {
@@ -54,7 +54,7 @@ export default function RegionForm() {
           <Form {...form}>
             <form
               onSubmit={form.handleSubmit(onSubmit)}
-              className="flex flex-col gap-2 grid grid-cols-2"
+              className="gap-2 grid grid-cols-2"
             >
               <FormField
                 control={form.control}
@@ -96,7 +96,7 @@ export default function RegionForm() {
               />
               <FormField control={form.control} name="driverLimitPerMonth" render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Entregas do caminhão (por mês)</FormLabel>
+                  <FormLabel>Entregas do motorista (por mês)</FormLabel>
                   <FormControl>
                     <Input
                       type="number"

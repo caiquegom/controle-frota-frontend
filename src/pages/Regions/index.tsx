@@ -81,7 +81,7 @@ export default function Region() {
                     key={region.id}
                     id={region.id}
                     name={region.name}
-                    tax={region.tax}
+                    tax={region.tax * 100}
                     driverLimitPerMonth={region.driverLimitPerMonth}
                     onDelete={deleteRegion}
                     onUpdate={updateRegion}

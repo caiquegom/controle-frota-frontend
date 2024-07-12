@@ -1,11 +1,18 @@
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { Checkbox } from '@/components/ui/checkbox';
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { toast } from '@/components/ui/use-toast';
 import useAxios from '@/hooks/useAxios';
+import { cn } from '@/lib/utils';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { Checkbox } from '@radix-ui/react-checkbox';
+import { Popover, PopoverContent, PopoverTrigger } from '@radix-ui/react-popover';
+import { ToastAction } from '@radix-ui/react-toast';
+import axios, { AxiosError } from 'axios';
+import { Calendar, CalendarIcon } from 'lucide-react';
+import { format } from 'path';
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
@@ -18,6 +25,7 @@ const FormSchema = z.object({
   destinyId: z.coerce.number({ message: "O campo é obrigatório" }),
   truckId: z.coerce.number({ message: "O campo é obrigatório" }),
   driverId: z.coerce.number({ message: "O campo é obrigatório" }),
+  driverName: z.string(),
   cargoId: z.coerce.number({ message: "O campo é obrigatório" }),
   value: z.coerce.number().min(0, 'O valor é obrigatório'),
   totalValue: z.number(),
@@ -50,7 +58,7 @@ export default function DeliveryForm() {
     method: 'get',
   });
   const { response: truckResponse } = useAxios({
-    url: '/trucks',
+    url: '/trucks/availables',
     method: 'get',
   });
   const form = useForm<z.infer<typeof FormSchema>>({
@@ -59,6 +67,7 @@ export default function DeliveryForm() {
       destinyId: undefined,
       truckId: undefined,
       driverId: undefined,
+      driverName: 'Nenhum motorista definido',
       cargoId: undefined,
       value: 0,
       totalValue: 0,
@@ -97,6 +106,16 @@ export default function DeliveryForm() {
     }
   }
 
+  const handleChangeTruck = (value: string) => {
+    form.setValue("truckId", Number(value))
+
+    const truck = truckOptions?.find(
+      (truck) => truck.id === Number(value),
+    );
+
+    form.setValue("driverId", Number(truck?.driver.id))
+    form.setValue("driverName", truck?.driver.name || form.getValues().driverName)
+  }
 
   const updateValues = () => {
     const tax = Number(form.getValues().tax) || 0;
@@ -122,7 +141,26 @@ export default function DeliveryForm() {
   }, [form.getValues().tax, form.getValues().value]);
 
   async function onSubmit(values: z.infer<typeof FormSchema>) {
-    console.log(values);
+    try {
+      await axios.post('/delivery', values);
+      form.reset();
+      toast({
+        title: 'Entrega cadastrada com sucesso!',
+        action: (
+          <ToastAction altText="Visualizar" onClick={() => navigate('/drivers')}>
+            Visualizar
+          </ToastAction>
+        ),
+      });
+    } catch (error: unknown) {
+      if (error instanceof AxiosError) {
+        toast({
+          title: 'Erro ao tentar cadastrar!',
+          description: `${error.response?.data.message}`,
+          variant: "destructive"
+        });
+      }
+    }
   }
 
   useEffect(() => {
@@ -141,11 +179,55 @@ export default function DeliveryForm() {
           <Form {...form}>
             <form
               onSubmit={form.handleSubmit(onSubmit)}
-              className="flex flex-col gap-2 grid grid-cols-3 gap-y-4"
+              className="grid grid-cols-3 gap-x-2 gap-y-4"
             >
               <h2 className="text-lg font-semibold mb-2 col-span-3 mt-2">
                 Dados da entrega
               </h2>
+              <FormField
+                control={form.control}
+                name="deliveryDate"
+                render={({ field }) => (
+                  <FormItem className="flex flex-col">
+                    <FormLabel>Data de entrega</FormLabel>
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <FormControl>
+                          <Button
+                            variant={"outline"}
+                            className={cn(
+                              "w-[240px] pl-3 text-left font-normal",
+                              !field.value && "text-muted-foreground"
+                            )}
+                          >
+                            {field.value ? (
+                              format(field.value, "PPP")
+                            ) : (
+                              <span>Pick a date</span>
+                            )}
+                            <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                          </Button>
+                        </FormControl>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-auto p-0" align="start">
+                        <Calendar
+                          mode="single"
+                          selected={field.value}
+                          onSelect={field.onChange}
+                          disabled={(date) =>
+                            date > new Date() || date < new Date("1900-01-01")
+                          }
+                          initialFocus
+                        />
+                      </PopoverContent>
+                    </Popover>
+                    <FormDescription>
+                      Your date of birth is used to calculate your age.
+                    </FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
               <FormField
                 control={form.control}
                 name="destinyId"
@@ -214,11 +296,14 @@ export default function DeliveryForm() {
               <FormField
                 control={form.control}
                 name="truckId"
-                render={({ field }) => (
+                render={() => (
                   <FormItem>
                     <FormLabel>Caminhão</FormLabel>
                     <FormControl>
-                      <Select onValueChange={field.onChange}>
+                      <Select onValueChange={(value) => {
+                        handleChangeTruck(value)
+                      }
+                      }>
                         <SelectTrigger>
                           <SelectValue placeholder="Selecione o caminhão" />
                         </SelectTrigger>
@@ -235,18 +320,12 @@ export default function DeliveryForm() {
               />
               <FormField
                 control={form.control}
-                name="driverId"
+                name="driverName"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Motorista</FormLabel>
                     <FormControl>
-                      <Select onValueChange={field.onChange} disabled>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Nenhum motorista definido" />
-                        </SelectTrigger>
-                        <SelectContent>
-                        </SelectContent>
-                      </Select>
+                      <Input {...field} disabled />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -257,7 +336,7 @@ export default function DeliveryForm() {
                 name="value"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Valor</FormLabel>
+                    <FormLabel>Valor (R$)</FormLabel>
                     <FormControl>
                       <Input
                         type="number"
@@ -266,7 +345,6 @@ export default function DeliveryForm() {
                         {...field}
                         onChange={(e) => {
                           form.setValue("value", Number(e.target.value))
-                          form.watch()
                         }}
                       />
                     </FormControl>
@@ -279,7 +357,7 @@ export default function DeliveryForm() {
                 name="taxValue"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Valor da taxa</FormLabel>
+                    <FormLabel>Valor da taxa (R$)</FormLabel>
                     <FormControl>
                       <Input
                         disabled
@@ -297,7 +375,7 @@ export default function DeliveryForm() {
                 name="totalValue"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Valor total</FormLabel>
+                    <FormLabel>Valor total (R$)</FormLabel>
                     <FormControl>
                       <Input
                         type="number"
@@ -325,11 +403,12 @@ export default function DeliveryForm() {
                         onCheckedChange={field.onChange}
                       />
                     </FormControl>
-                    <div className="space-y-1 leading-none">
+                    <span className="space-y-1 leading-none">
                       <FormLabel className="cursor-not-allowed">
                         Carga perigosa
                       </FormLabel>
-                    </div>
+                    </span>
+                    <FormMessage />
                   </FormItem>
                 )}
               />
@@ -345,11 +424,13 @@ export default function DeliveryForm() {
                         onCheckedChange={field.onChange}
                       />
                     </FormControl>
-                    <div className="space-y-1 leading-none">
+                    <span className="space-y-1 leading-none">
                       <FormLabel className="cursor-not-allowed">
                         Carga valiosa
                       </FormLabel>
-                    </div>
+                    </span>
+                    <FormMessage />
+
                   </FormItem>
                 )}
               />
@@ -365,9 +446,10 @@ export default function DeliveryForm() {
                         onCheckedChange={field.onChange}
                       />
                     </FormControl>
-                    <div className="space-y-1 leading-none">
+                    <span className="space-y-1 leading-none">
                       <FormLabel>Garantir seguro de carga</FormLabel>
-                    </div>
+                    </span>
+                    <FormMessage />
                   </FormItem>
                 )}
               />
@@ -387,7 +469,7 @@ export default function DeliveryForm() {
             </form>
           </Form>
         </CardContent>
-      </Card>
+      </Card >
     </>
   );
 }

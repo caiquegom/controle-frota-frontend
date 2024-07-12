@@ -38,10 +38,8 @@ const formSchema = z.object({
   name: z
     .string()
     .min(2, { message: 'O nome da região deve ter pelo menos 2 caracteres.' }),
-  tax: z
-    .number()
-    .min(0, { message: 'A taxa deve ser um número positivo.' })
-    .max(1, { message: 'A taxa deve ser um número entre 0 e 1.' }),
+  tax: z.coerce
+    .number(),
   driverLimitPerMonth: z.coerce.number({ message: 'O valor deve ser um número' }).nonnegative({ message: 'O valor não pode ser negativo' }).int({ message: 'O valor deve ser inteiro' }).max(30, 'O valor deve ser menor que 30')
 });
 
@@ -76,18 +74,20 @@ export default function RegionTableItem({
   }
 
   const onSubmit = async (data: z.infer<typeof formSchema>) => {
+    const decimalTax = data.tax / 100
+
     try {
       if (data.name === initialName && data.tax === initialTax && data.driverLimitPerMonth === initialDriverLimitPerMonth) {
         toast({
           title: 'Nenhuma alteração foi feita.',
         });
       } else {
-        const updatedRegion = { id, ...data };
+        const updatedRegion = { ...data, id, tax: decimalTax };
         await onUpdate(updatedRegion);
         setEditDialogIsOpen(false);
         toast({
           title: 'Região atualizada com sucesso!',
-          description: `Nome: ${data.name}, Taxa: ${(data.tax * 100).toFixed(2)}%, Limite: ${data.driverLimitPerMonth}`,
+          description: `Nome: ${data.name}, Taxa: ${data.tax}%, Limite: ${data.driverLimitPerMonth}`,
         });
       }
     } catch (error) {
@@ -99,8 +99,8 @@ export default function RegionTableItem({
     <TableRow>
       <TableCell className="font-medium">{id}</TableCell>
       <TableCell className="w-fit">{initialName}</TableCell>
-      <TableCell>{(initialTax * 100).toFixed(2)}%</TableCell>
-      <TableCell>{initialDriverLimitPerMonth}</TableCell>
+      <TableCell>{initialTax}%</TableCell>
+      <TableCell>{initialDriverLimitPerMonth === 0 ? '-' : initialDriverLimitPerMonth}</TableCell>
       <TableCell className="flex">
         <Dialog open={editDialogIsOpen} onOpenChange={setEditDialogIsOpen}>
           <DialogTrigger asChild>
@@ -146,17 +146,11 @@ export default function RegionTableItem({
                       <FormLabel>Valor da taxa</FormLabel>
                       <FormControl>
                         <Input
-                          defaultValue={initialTax}
                           type="number"
-                          step="0.01"
+                          max={100}
+                          step="1"
                           placeholder="Digite o valor da taxa..."
                           {...field}
-                          onChange={(e) => {
-                            const value = parseFloat(
-                              e.target.value.replace(',', '.'),
-                            );
-                            field.onChange(isNaN(value) ? '' : value);
-                          }}
                         />
                       </FormControl>
                       <FormMessage />
@@ -165,7 +159,7 @@ export default function RegionTableItem({
                 />
                 <FormField control={form.control} name="driverLimitPerMonth" render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Entregas do caminhão (por mês)</FormLabel>
+                    <FormLabel>Entregas do motorista (por mês)</FormLabel>
                     <FormControl>
                       <Input
                         type="number"
@@ -221,7 +215,7 @@ export default function RegionTableItem({
                 <Input
                   readOnly
                   id="tax"
-                  defaultValue={(initialTax * 100).toFixed(2) + '%'}
+                  defaultValue={initialTax}
                   className="col-span-3"
                 />
               </div>

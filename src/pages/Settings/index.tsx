@@ -17,7 +17,6 @@ const FormSchema = z.object({
 });
 
 export default function Settings() {
-  // const navigate = useNavigate();
   const { response, loading } = useAxios({ url: '/settings', method: 'get' })
 
   const form = useForm<z.infer<typeof FormSchema>>({
@@ -31,8 +30,8 @@ export default function Settings() {
   useEffect(() => {
     if (!response) return
 
-    form.setValue('driverLimitPerTruck', response.data.driverLimitPerTruck)
-    form.setValue('truckLimitPerMonth', response.data.truckLimitPerMonth)
+    form.setValue('driverLimitPerTruck', response?.data?.driverLimitPerTruck)
+    form.setValue('truckLimitPerMonth', response?.data?.truckLimitPerMonth)
   }, [response])
 
   async function onSubmit(values: z.infer<typeof FormSchema>) {
@@ -44,8 +43,9 @@ export default function Settings() {
     } catch (error: any) {
       if (error instanceof AxiosError) {
         toast({
-          title: "Configurações alteradas com sucesso!",
-          description: error.response?.data.message
+          title: "Erro ao alterar configurações!",
+          description: error.response?.data.message,
+          variant: "destructive"
         })
       }
     }

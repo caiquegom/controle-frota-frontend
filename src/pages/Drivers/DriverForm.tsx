@@ -47,6 +47,7 @@ export default function DriverForm() {
         toast({
           title: 'Erro ao tentar cadastrar!',
           description: `${error.response?.data.message}`,
+          variant: "destructive"
         });
       }
     }

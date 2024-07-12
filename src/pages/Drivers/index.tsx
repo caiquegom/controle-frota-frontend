@@ -2,8 +2,9 @@ import NoItemsFound from "@/components/NoItemsFound";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Table, TableBody, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { toast } from "@/components/ui/use-toast";
 import useAxios from "@/hooks/useAxios";
-import axios from "axios";
+import axios, { AxiosError } from "axios";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import DriverTableItem from "./components/DriverTableItem";
@@ -48,7 +49,13 @@ export default function Drivers() {
         ),
       );
     } catch (error) {
-      console.error('Erro ao atualizar:', error);
+      if (error instanceof AxiosError) {
+        toast({
+          title: 'Erro ao tentar atualizar!',
+          description: `${error.response?.data.message}`,
+          variant: "destructive"
+        });
+      }
     }
   }
 

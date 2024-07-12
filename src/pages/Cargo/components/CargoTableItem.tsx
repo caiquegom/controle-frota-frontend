@@ -161,9 +161,9 @@ export default function CargoTableItem({ id, name: initialName, type: initialTyp
                   name="description"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Nome</FormLabel>
+                      <FormLabel>Descrição</FormLabel>
                       <FormControl>
-                        <Textarea placeholder="Digite o nome da carga" className="resize-none" defaultValue={initialDescription} {...field} />
+                        <Textarea placeholder="Digite a descrição da carga" className="resize-none" defaultValue={initialDescription} {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>

@@ -8,10 +8,12 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
+import { toast } from '@/components/ui/use-toast';
 import useAxios from '@/hooks/useAxios';
-import axios from 'axios';
+import axios, { AxiosError } from 'axios';
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { DriverProps } from '../Drivers';
 import TruckTableItem from './components/TruckTableItem';
 import TruckTableSkeleton from './components/TruckTableSkeleton';
 
@@ -22,17 +24,21 @@ export type TruckProps = {
   model: string;
   year: string;
   capacity: number;
+  driver: DriverProps
 };
 
 export default function Truck() {
   const navigate = useNavigate();
-  const { response, loading } = useAxios({ url: '/trucks', method: 'get' });
+  const { response: trucksResponse, loading: truckLoading } = useAxios({ url: '/trucks', method: 'get' });
+  const { response: driversResponse } = useAxios({ url: '/drivers', method: 'get' });
   const [trucksList, setTrucksList] = useState<TruckProps[]>([]);
+  const [driverOptions, setdriverOptions] = useState<DriverProps[]>([]);
 
   useEffect(() => {
-    if (!response) return;
-    setTrucksList(response?.data);
-  }, [response]);
+    if (!trucksResponse || !driversResponse) return;
+    setTrucksList(trucksResponse?.data);
+    setdriverOptions(driversResponse?.data);
+  }, [trucksResponse, driversResponse]);
 
   async function deleteTruck(id: number) {
     try {
@@ -56,7 +62,13 @@ export default function Truck() {
         ),
       );
     } catch (error) {
-      console.error('Erro ao atualizar:', error);
+      if (error instanceof AxiosError) {
+        toast({
+          title: 'Erro ao tentar atualizar!',
+          description: `${error.response?.data.message}`,
+          variant: "destructive"
+        });
+      }
     }
   }
 
@@ -79,11 +91,12 @@ export default function Truck() {
                 <TableHead>Modelo</TableHead>
                 <TableHead>Ano</TableHead>
                 <TableHead>Capacidade(t)</TableHead>
+                <TableHead>Motorista</TableHead>
                 <TableHead>Ações</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {loading ? (
+              {truckLoading ? (
                 <TruckTableSkeleton />
               ) : (
                 trucksList?.map((truck: TruckProps) => (
@@ -95,6 +108,8 @@ export default function Truck() {
                     capacity={truck.capacity}
                     model={truck.model}
                     year={truck.year}
+                    driver={truck.driver}
+                    driverOptions={driverOptions}
                     onDelete={deleteTruck}
                     onUpdate={updateTruck}
                   />
@@ -102,7 +117,7 @@ export default function Truck() {
               )}
             </TableBody>
           </Table>
-          {(!loading && (!trucksList || trucksList.length === 0)) && <NoItemsFound />}
+          {(!truckLoading && (!trucksList || trucksList.length === 0)) && <NoItemsFound />}
         </CardContent>
       </Card>
     </>

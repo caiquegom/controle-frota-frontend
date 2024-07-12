@@ -4,9 +4,9 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { useNavigate } from "react-router-dom";
 
 export type DeliveryProps = {
-  // id: number;
-  // name: string;
-  // tax: number;
+  id: number;
+  name: string;
+  tax: number;
 };
 
 export default function Deliveries() {

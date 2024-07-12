@@ -7,16 +7,20 @@ import {
   FormField,
   FormItem,
   FormLabel,
-  FormMessage,
+  FormMessage
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { ToastAction } from '@/components/ui/toast';
 import { useToast } from '@/components/ui/use-toast';
+import useAxios from '@/hooks/useAxios';
 import { zodResolver } from '@hookform/resolvers/zod';
-import axios from 'axios';
+import axios, { AxiosError } from 'axios';
+import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
 import * as z from 'zod';
+import { DriverProps } from '../Drivers';
 
 const formSchema = z.object({
   plate: z.string().refine((value) => /^[a-zA-Z]{3}[0-9][A-Za-z0-9][0-9]{2}$/.test(value ?? ""), 'Digite uma placa válida. Exemplo: XXX0000'),
@@ -28,11 +32,15 @@ const formSchema = z.object({
     return !isNaN(numYear) && numYear >= 2000 && numYear <= currentYear;
   }, 'O ano deve ser um número válido entre 2000 e o ano atual.'),
   capacity: z.number().min(1, 'A capacidade deve ser maior que 0.'),
+  driverId: z.string().optional()
 });
 
 export default function TruckForm() {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { response } = useAxios({ url: '/drivers', method: 'get' })
+  const [driverOptions, setDriverOptions] = useState<DriverProps[] | null>(null);
+
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -42,12 +50,16 @@ export default function TruckForm() {
       model: '',
       year: '',
       capacity: 0,
+      driverId: undefined
     },
   });
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
+    const driverId = values.driverId ? Number(values.driverId) : undefined
+    const formatValues = { ...values, driverId }
+
     try {
-      await axios.post('/truck', values);
+      await axios.post('/truck', formatValues);
       form.reset();
       toast({
         title: 'Caminhão cadastrado com sucesso!',
@@ -59,9 +71,20 @@ export default function TruckForm() {
         ),
       });
     } catch (error) {
-      console.error('Error:', error);
+      if (error instanceof AxiosError) {
+        toast({
+          title: 'Erro ao tentar cadastrar!',
+          description: `${error.response?.data.message}`,
+          variant: 'destructive',
+        });
+      }
     }
   }
+
+  useEffect(() => {
+    if (!response) return
+    setDriverOptions(response.data)
+  }, [response])
 
   return (
     <>
@@ -156,6 +179,31 @@ export default function TruckForm() {
                       />
                     </FormControl>
                     <FormDescription>Capacidade em toneladas</FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="driverId"
+                render={({ field }) => (
+                  <FormItem className="col-span-2">
+                    <FormLabel>Motorista (opcional)</FormLabel>
+                    <Select onValueChange={field.onChange}>
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Selecionar um motorista" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {driverOptions?.map((option) => (
+                          <SelectItem key={option.id} value={String(option.id)}>
+                            {`${option.name} (id: ${option.id})`}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                     <FormMessage />
                   </FormItem>
                 )}
