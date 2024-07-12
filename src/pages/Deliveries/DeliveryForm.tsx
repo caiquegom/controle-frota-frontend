@@ -20,6 +20,7 @@ import { useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
 import { z } from 'zod';
 import { CargoProps } from '../Cargo';
+import { DriverProps } from '../Drivers';
 import { RegionProps } from '../Regions';
 import { TruckProps } from '../Truck';
 
@@ -27,7 +28,6 @@ const FormSchema = z.object({
   destinyId: z.coerce.number({ message: "O campo é obrigatório" }),
   truckId: z.coerce.number({ message: "O campo é obrigatório" }),
   driverId: z.coerce.number({ message: "O campo é obrigatório" }),
-  driverName: z.string(),
   cargoId: z.coerce.number({ message: "O campo é obrigatório" }),
   value: z.coerce.number().min(0, 'O valor é obrigatório'),
   totalValue: z.number(),
@@ -50,26 +50,40 @@ export default function DeliveryForm() {
   );
   const [cargoOptions, setCargoOptions] = useState<CargoProps[] | null>(null);
   const [truckOptions, setTruckOptions] = useState<TruckProps[] | null>(null);
+  const [driverOptions, setDriverOptions] = useState<DriverProps[] | null>(null);
 
   const { response: regionsReponse } = useAxios({
     url: '/regions',
     method: 'get',
   });
   const { response: cargoResponse } = useAxios({
-    url: '/cargos',
+    url: '/cargos/availables',
     method: 'get',
   });
   const { response: truckResponse } = useAxios({
     url: '/trucks/availables',
     method: 'get',
   });
+  const { response: driverResponse } = useAxios({
+    url: '/drivers/availables',
+    method: 'get',
+  });
+
+  useEffect(() => {
+    if (!regionsReponse || !cargoResponse || !truckResponse || !driverResponse) return;
+
+    setRegionOptions(regionsReponse.data);
+    setCargoOptions(cargoResponse.data);
+    setTruckOptions(truckResponse.data);
+    setDriverOptions(driverResponse.data);
+  }, [regionsReponse, cargoResponse, truckResponse, driverResponse]);
+
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
     defaultValues: {
       destinyId: undefined,
       truckId: undefined,
       driverId: undefined,
-      driverName: 'Nenhum motorista definido',
       cargoId: undefined,
       value: 0,
       totalValue: 0,
@@ -108,17 +122,6 @@ export default function DeliveryForm() {
     }
   }
 
-  const handleChangeTruck = (value: string) => {
-    form.setValue("truckId", Number(value))
-
-    const truck = truckOptions?.find(
-      (truck) => truck.id === Number(value),
-    );
-
-    form.setValue("driverId", Number(truck?.driver.id))
-    form.setValue("driverName", truck?.driver.name || form.getValues().driverName)
-  }
-
   const updateValues = () => {
     const tax = Number(form.getValues().tax) || 0;
     const value = Number(form.getValues().value) || 0;
@@ -155,7 +158,7 @@ export default function DeliveryForm() {
       toast({
         title: 'Entrega cadastrada com sucesso!',
         action: (
-          <ToastAction altText="Visualizar" onClick={() => navigate('/drivers')}>
+          <ToastAction altText="Visualizar" onClick={() => navigate('/deliveries')}>
             Visualizar
           </ToastAction>
         ),
@@ -170,14 +173,6 @@ export default function DeliveryForm() {
       }
     }
   }
-
-  useEffect(() => {
-    if (!regionsReponse || !cargoResponse || !truckResponse) return;
-
-    setRegionOptions(regionsReponse.data);
-    setCargoOptions(cargoResponse.data);
-    setTruckOptions(truckResponse.data);
-  }, [regionsReponse, cargoResponse, truckResponse]);
 
   return (
     <>
@@ -303,14 +298,11 @@ export default function DeliveryForm() {
               <FormField
                 control={form.control}
                 name="truckId"
-                render={() => (
+                render={({ field }) => (
                   <FormItem>
                     <FormLabel>Caminhão</FormLabel>
                     <FormControl>
-                      <Select onValueChange={(value) => {
-                        handleChangeTruck(value)
-                      }
-                      }>
+                      <Select onValueChange={field.onChange}>
                         <SelectTrigger>
                           <SelectValue placeholder="Selecione o caminhão" />
                         </SelectTrigger>
@@ -327,12 +319,21 @@ export default function DeliveryForm() {
               />
               <FormField
                 control={form.control}
-                name="driverName"
+                name="driverId"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Motorista</FormLabel>
                     <FormControl>
-                      <Input {...field} disabled />
+                      <Select onValueChange={field.onChange}>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Selecione o caminhão" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {driverOptions?.map((option) => (
+                            <SelectItem key={option.id} value={String(option.id)}>{`${option.name} (id: ${option.id})`}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
                     </FormControl>
                     <FormMessage />
                   </FormItem>

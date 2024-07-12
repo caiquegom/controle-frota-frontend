@@ -1,6 +1,14 @@
 import { TableCell, TableRow } from "@/components/ui/table";
+import { CargoProps } from "@/pages/Cargo";
+import { DeliveryProps } from "..";
 
-export default function DeliveryTableItem() {
+
+type DeliveryItemProps = {
+  onDelete: (id: number) => void,
+  onUpdate: (updatedDelivery: CargoProps) => void
+} & DeliveryProps
+
+export default function DeliveryTableItem({}: DeliveryItemProps) {
   return (
     <TableRow>
       <TableCell>Id</TableCell>

@@ -12,6 +12,13 @@ export type DeliveryProps = {
   id: number;
   name: string;
   tax: number;
+  totalValue: number,
+  isValuable: boolean,
+  isDangerous: boolean,
+  hasInsurance: boolean,
+  deliveryDate: Date,
+  createdAt: Date,
+  updatedAt: Date,
 };
 
 export default function Deliveries() {

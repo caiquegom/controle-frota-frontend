@@ -31,7 +31,6 @@ routes.push(
     path: '/delivery/add',
     element: <DeliveryForm />
   }
-
 )
 
 export default routes;
