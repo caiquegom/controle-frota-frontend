@@ -1,4 +1,5 @@
 import NoItemsFound from '@/components/NoItemsFound';
+import TableSkeleton from '@/components/TableSkeleton';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import {
@@ -13,7 +14,6 @@ import axios from 'axios';
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import RegionTableItem from './components/RegionTableItem';
-import RegionTableSkeleton from './components/RegionTableSkeleton';
 
 export type RegionProps = {
   id: number;
@@ -24,6 +24,7 @@ export type RegionProps = {
 
 export default function Region() {
   const navigate = useNavigate();
+  const tableHeaders = ["Id", "Nome", "Taxa", "Limite de viagens do motorista", "Ações"]
   const { response, loading } = useAxios({ url: '/regions', method: 'get' });
   const [regionsList, setRegionsList] = useState<RegionProps[]>([]);
 
@@ -65,16 +66,14 @@ export default function Region() {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Id</TableHead>
-                <TableHead>Nome</TableHead>
-                <TableHead>Taxa</TableHead>
-                <TableHead>Limite de viagens do motorista</TableHead>
-                <TableHead>Ações</TableHead>
+                {tableHeaders.map((thead) => (
+                  <TableHead>{thead}</TableHead>
+                ))}
               </TableRow>
             </TableHeader>
             <TableBody>
               {loading ? (
-                <RegionTableSkeleton />
+                <TableSkeleton columnsAmount={tableHeaders.length} />
               ) : (
                 regionsList.map((region: RegionProps) => (
                   <RegionTableItem

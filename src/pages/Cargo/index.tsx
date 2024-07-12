@@ -1,4 +1,5 @@
 import NoItemsFound from "@/components/NoItemsFound";
+import TableSkeleton from "@/components/TableSkeleton";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Table, TableBody, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -7,7 +8,6 @@ import axios from "axios";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import CargoTableItem from "./components/CargoTableItem";
-import CargoTableSkeleton from "./components/CargoTableSkeleton";
 
 export type CargoProps = {
   id: number,
@@ -18,6 +18,7 @@ export type CargoProps = {
 
 export default function Cargo() {
   const navigate = useNavigate();
+  const tableHeaders = ['Id', 'Nome', 'Tipo de carga', 'Descrição', 'Ações']
   const { response, loading } = useAxios({ url: '/cargos', method: 'get' })
   const [cargosList, setCargoList] = useState<CargoProps[]>([])
 
@@ -57,15 +58,13 @@ export default function Cargo() {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Id</TableHead>
-                <TableHead>Nome</TableHead>
-                <TableHead>Tipo de carga</TableHead>
-                <TableHead>Descrição</TableHead>
-                <TableHead>Ações</TableHead>
+                {tableHeaders.map((thead) => (
+                  <TableHead>{thead}</TableHead>
+                ))}
               </TableRow>
             </TableHeader>
             <TableBody>
-              {loading ? (<CargoTableSkeleton />) : (
+              {loading ? (<TableSkeleton columnsAmount={tableHeaders.length} />) : (
                 cargosList?.map(cargo => (
                   <CargoTableItem key={cargo.id} id={cargo.id} name={cargo.name} type={cargo.type} description={cargo.description} onDelete={deleteCargo} onUpdate={updateCargo} />
                 )))}

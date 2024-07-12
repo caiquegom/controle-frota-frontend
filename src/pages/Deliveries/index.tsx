@@ -1,7 +1,12 @@
+import NoItemsFound from "@/components/NoItemsFound";
+import TableSkeleton from "@/components/TableSkeleton";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Table, TableBody, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import useAxios from "@/hooks/useAxios";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import DeliveryTableItem from "./components/DeliveryTableItem";
 
 export type DeliveryProps = {
   id: number;
@@ -11,6 +16,14 @@ export type DeliveryProps = {
 
 export default function Deliveries() {
   const navigate = useNavigate()
+  const tableHeaders = ['Id', 'Destino', 'Data da entrega', 'Valor total', 'Caminhão', 'Motorista', 'Carga', 'Ações']
+  const { response, loading } = useAxios({ url: '/deliveries', method: 'get' })
+  const [deliveriesList, setDeliveriesList] = useState<DeliveryProps[]>([])
+
+  useEffect(() => {
+    if (!response) return
+    setDeliveriesList(response?.data)
+  }, [response])
 
   return (
     <>
@@ -25,29 +38,19 @@ export default function Deliveries() {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Id</TableHead>
-                <TableHead>Destino</TableHead>
-                <TableHead>Data da entrega</TableHead>
-                <TableHead>Valor total</TableHead>
-                <TableHead>Caminhão</TableHead>
-                <TableHead>Motorista</TableHead>
-                <TableHead>Carga</TableHead>
-                <TableHead>Ações</TableHead>
+                {tableHeaders.map((thead) => (
+                  <TableHead>{thead}</TableHead>
+                ))}
               </TableRow>
             </TableHeader>
             <TableBody>
-              <TableRow>
-                <TableCell>Id</TableCell>
-                <TableCell>Destino</TableCell>
-                <TableCell>Data da entrega</TableCell>
-                <TableCell>Valor total</TableCell>
-                <TableCell>Caminhão</TableCell>
-                <TableCell>Motorista</TableCell>
-                <TableCell>Carga</TableCell>
-                <TableCell>Ações</TableCell>
-              </TableRow>
+              {loading ? (<TableSkeleton columnsAmount={tableHeaders.length} />) : (
+                deliveriesList?.map(delivery => (
+                  <DeliveryTableItem key={delivery.id} />
+                )))}
             </TableBody>
           </Table>
+          {(!loading && (!deliveriesList || deliveriesList.length === 0)) && <NoItemsFound />}
         </CardContent>
       </Card>
     </>

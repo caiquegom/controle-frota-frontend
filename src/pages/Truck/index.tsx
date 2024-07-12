@@ -1,4 +1,5 @@
 import NoItemsFound from '@/components/NoItemsFound';
+import TableSkeleton from '@/components/TableSkeleton';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import {
@@ -15,7 +16,6 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { DriverProps } from '../Drivers';
 import TruckTableItem from './components/TruckTableItem';
-import TruckTableSkeleton from './components/TruckTableSkeleton';
 
 export type TruckProps = {
   id: number;
@@ -29,6 +29,7 @@ export type TruckProps = {
 
 export default function Truck() {
   const navigate = useNavigate();
+  const tableHeaders = ["Id", "Placa", "Marca", "Modelo", "Ano", "Capacidade(t)", "Motorista", "Ações"];
   const { response: trucksResponse, loading: truckLoading } = useAxios({ url: '/trucks', method: 'get' });
   const { response: driversResponse } = useAxios({ url: '/drivers', method: 'get' });
   const [trucksList, setTrucksList] = useState<TruckProps[]>([]);
@@ -85,19 +86,14 @@ export default function Truck() {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Id</TableHead>
-                <TableHead>Placa</TableHead>
-                <TableHead>Marca</TableHead>
-                <TableHead>Modelo</TableHead>
-                <TableHead>Ano</TableHead>
-                <TableHead>Capacidade(t)</TableHead>
-                <TableHead>Motorista</TableHead>
-                <TableHead>Ações</TableHead>
+                {tableHeaders.map((thead) => (
+                  <TableHead>{thead}</TableHead>
+                ))}
               </TableRow>
             </TableHeader>
             <TableBody>
               {truckLoading ? (
-                <TruckTableSkeleton />
+                <TableSkeleton columnsAmount={tableHeaders.length} />
               ) : (
                 trucksList?.map((truck: TruckProps) => (
                   <TruckTableItem

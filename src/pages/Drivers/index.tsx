@@ -1,4 +1,5 @@
 import NoItemsFound from "@/components/NoItemsFound";
+import TableSkeleton from "@/components/TableSkeleton";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Table, TableBody, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -8,7 +9,6 @@ import axios, { AxiosError } from "axios";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import DriverTableItem from "./components/DriverTableItem";
-import DriverTableSkeleton from "./components/DriverTableSkeleton";
 
 export type DriverProps = {
   id: number,
@@ -19,6 +19,7 @@ export type DriverProps = {
 
 export default function Drivers() {
   const navigate = useNavigate()
+  const tableHeaders = ["Id", "Nome", "E-mail", "Telefone", "Ações"]
   const { response, loading } = useAxios({ url: '/drivers', method: 'get' });
   const [driversList, setDriversList] = useState<DriverProps[]>([]);
 
@@ -72,16 +73,14 @@ export default function Drivers() {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Id</TableHead>
-                <TableHead>Nome</TableHead>
-                <TableHead>E-mail</TableHead>
-                <TableHead>Telefone</TableHead>
-                <TableHead>Ações</TableHead>
+                {tableHeaders.map((thead) => (
+                  <TableHead>{thead}</TableHead>
+                ))}
               </TableRow>
             </TableHeader>
             <TableBody>
               {loading ? (
-                <DriverTableSkeleton />
+                <TableSkeleton columnsAmount={tableHeaders.length} />
               ) : (
                 driversList?.map((driver: DriverProps) => (
                   <DriverTableItem
