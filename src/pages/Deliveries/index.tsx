@@ -1,36 +1,62 @@
-import NoItemsFound from "@/components/NoItemsFound";
-import TableSkeleton from "@/components/TableSkeleton";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import { Table, TableBody, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import useAxios from "@/hooks/useAxios";
-import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
-import DeliveryTableItem from "./components/DeliveryTableItem";
+import NoItemsFound from '@/components/NoItemsFound';
+import TableSkeleton from '@/components/TableSkeleton';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader } from '@/components/ui/card';
+import {
+  Table,
+  TableBody,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
+import useAxios from '@/hooks/useAxios';
+import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { CargoProps } from '../Cargo';
+import { DriverProps } from '../Drivers';
+import { RegionProps } from '../Regions';
+import { TruckProps } from '../Truck';
+import DeliveryTableItem from './components/DeliveryTableItem';
 
 export type DeliveryProps = {
   id: number;
   name: string;
   tax: number;
-  totalValue: number,
-  isValuable: boolean,
-  isDangerous: boolean,
-  hasInsurance: boolean,
-  deliveryDate: Date,
-  createdAt: Date,
-  updatedAt: Date,
+  totalValue: number;
+  isValuable: boolean;
+  isDangerous: boolean;
+  hasInsurance: boolean;
+  deliveryDate: Date;
+  createdAt: Date;
+  updatedAt: Date;
+  driver: DriverProps;
+  cargo: CargoProps;
+  truck: TruckProps;
+  destiny: RegionProps;
 };
 
+
+
 export default function Deliveries() {
-  const navigate = useNavigate()
-  const tableHeaders = ['Id', 'Destino', 'Data da entrega', 'Valor total', 'Caminhão', 'Motorista', 'Carga', 'Ações']
-  const { response, loading } = useAxios({ url: '/deliveries', method: 'get' })
-  const [deliveriesList, setDeliveriesList] = useState<DeliveryProps[]>([])
+  const navigate = useNavigate();
+  const tableHeaders = [
+    'Id',
+    'Destino',
+    'Data da entrega',
+    'Valor total',
+    'Caminhão (id)',
+    'Motorista',
+    'Carga',
+    'Indicadores',
+    'Ações',
+  ];
+  const { response, loading } = useAxios({ url: '/deliveries', method: 'get' });
+  const [deliveriesList, setDeliveriesList] = useState<DeliveryProps[]>([]);
 
   useEffect(() => {
-    if (!response) return
-    setDeliveriesList(response?.data)
-  }, [response])
+    if (!response) return;
+    setDeliveriesList(response?.data);
+  }, [response]);
 
   return (
     <>
@@ -51,15 +77,32 @@ export default function Deliveries() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {loading ? (<TableSkeleton columnsAmount={tableHeaders.length} />) : (
-                deliveriesList?.map(delivery => (
-                  <DeliveryTableItem key={delivery.id} />
-                )))}
+              {loading ? (
+                <TableSkeleton columnsAmount={tableHeaders.length} />
+              ) : (
+                deliveriesList?.map((delivery) => (
+                  <DeliveryTableItem
+                    key={delivery.id}
+                    id={delivery.id}
+                    cargoName={delivery.cargo.name}
+                    deliveryDate={new Date(delivery.deliveryDate)}
+                    destinyName={delivery.destiny.name}
+                    driver={delivery.driver}
+                    truckId={delivery.truck.id}
+                    totalValue={delivery.totalValue}
+                    isDangerous={delivery.isDangerous}
+                    isValuable={delivery.isValuable}
+                    hasInsurance={delivery.hasInsurance}
+                  />
+                ))
+              )}
             </TableBody>
           </Table>
-          {(!loading && (!deliveriesList || deliveriesList.length === 0)) && <NoItemsFound />}
+          {!loading && (!deliveriesList || deliveriesList.length === 0) && (
+            <NoItemsFound />
+          )}
         </CardContent>
       </Card>
     </>
-  )
+  );
 }

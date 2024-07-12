@@ -19,10 +19,8 @@ import {
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { TableCell, TableRow } from '@/components/ui/table';
 import { useToast } from '@/components/ui/use-toast';
-import { DriverProps } from '@/pages/Drivers';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { AxiosError } from 'axios';
 import { SquarePen, Trash } from 'lucide-react';
@@ -32,7 +30,6 @@ import { z } from 'zod';
 import { TruckProps } from '..';
 
 type TruckItemProps = {
-  driverOptions: DriverProps[];
   onDelete: (id: number) => void;
   onUpdate: (updatedTruck: TruckProps) => void;
 } & TruckProps
@@ -50,15 +47,6 @@ const formSchema = z.object({
       return !isNaN(numYear) && numYear >= 2000 && numYear <= currentYear;
     }, 'O ano deve ser um número válido entre 2000 e o ano atual.'),
   capacity: z.number().min(1, 'A capacidade deve ser maior que 0.'),
-  driver: z.object({
-    id: z.number(),
-    name: z.string(),
-    phone: z.string(),
-    createAt: z.date(),
-    updatedAt: z.date(),
-    deletedAt: z.date().nullable(),
-  }),
-  driverId: z.number()
 });
 
 export default function TruckTableItem({
@@ -68,8 +56,6 @@ export default function TruckTableItem({
   model: initialModel,
   year: initialYear,
   capacity: initialCapacity,
-  driver: initialDriver,
-  driverOptions,
   onDelete,
   onUpdate,
 }: TruckItemProps) {
@@ -86,8 +72,6 @@ export default function TruckTableItem({
       model: initialModel,
       year: initialYear,
       capacity: initialCapacity,
-      driver: initialDriver,
-      driverId: initialDriver?.id
     },
   });
 
@@ -140,7 +124,6 @@ export default function TruckTableItem({
       <TableCell>{initialModel}</TableCell>
       <TableCell>{initialYear}</TableCell>
       <TableCell>{initialCapacity}</TableCell>
-      <TableCell>{initialDriver?.id ? `${initialDriver.name} (id: ${initialDriver.id})` : '-'}</TableCell>
       <TableCell className="flex">
         <Dialog open={editDialogIsOpen} onOpenChange={setEditDialogIsOpen}>
           <DialogTrigger asChild>
@@ -249,30 +232,6 @@ export default function TruckTableItem({
                           placeholder="Digite a capacidade do caminhão"
                         />
                       </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="driverId"
-                  render={({ field }) => (
-                    <FormItem className="col-span-2">
-                      <FormLabel>Motorista (opcional)</FormLabel>
-                      <Select onValueChange={field.onChange}>
-                        <FormControl>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Selecionar um motorista" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          {driverOptions?.map((option) => (
-                            <SelectItem key={option.id} value={String(option.id)}>
-                              {`${option.name} (id: ${option.id})`}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
                       <FormMessage />
                     </FormItem>
                   )}

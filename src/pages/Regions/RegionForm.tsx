@@ -109,7 +109,19 @@ export default function RegionForm() {
                   <FormMessage />
                 </FormItem>
               )} />
-              <Button type="submit" className='mt-2 col-span-2'>Cadastrar região</Button>
+              <div className="col-span-2 flex gap-2 justify-end mt-3">
+                <Button
+                  type="button"
+                  variant="secondary"
+                  className="w-40"
+                  onClick={() => navigate('/regions')}
+                >
+                  Voltar
+                </Button>
+                <Button type="submit" className="w-40">
+                  Cadastrar
+                </Button>
+              </div>
             </form>
           </Form>
         </CardContent>

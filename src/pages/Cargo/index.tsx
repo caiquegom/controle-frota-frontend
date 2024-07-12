@@ -7,6 +7,7 @@ import useAxios from "@/hooks/useAxios";
 import axios from "axios";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { DeliveryProps } from "../Deliveries";
 import CargoTableItem from "./components/CargoTableItem";
 
 export type CargoProps = {
@@ -14,11 +15,12 @@ export type CargoProps = {
   name: string,
   type: 'eletronic' | 'fuel' | 'other'
   description?: string,
+  delivery?: DeliveryProps,
 }
 
 export default function Cargo() {
   const navigate = useNavigate();
-  const tableHeaders = ['Id', 'Nome', 'Tipo de carga', 'Descrição', 'Ações']
+  const tableHeaders = ['Id', 'Nome', 'Tipo de carga', 'Descrição', 'Entrega (id)', 'Ações']
   const { response, loading } = useAxios({ url: '/cargos', method: 'get' })
   const [cargosList, setCargoList] = useState<CargoProps[]>([])
 
@@ -66,7 +68,7 @@ export default function Cargo() {
             <TableBody>
               {loading ? (<TableSkeleton columnsAmount={tableHeaders.length} />) : (
                 cargosList?.map(cargo => (
-                  <CargoTableItem key={cargo.id} id={cargo.id} name={cargo.name} type={cargo.type} description={cargo.description} onDelete={deleteCargo} onUpdate={updateCargo} />
+                  <CargoTableItem key={cargo.id} id={cargo.id} name={cargo.name} type={cargo.type} description={cargo.description} deliveryId={cargo.delivery?.id} onDelete={deleteCargo} onUpdate={updateCargo} />
                 )))}
             </TableBody>
           </Table>

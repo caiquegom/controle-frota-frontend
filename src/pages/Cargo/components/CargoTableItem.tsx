@@ -31,6 +31,7 @@ const cargoTypeOptions = {
 }
 
 type CargoItemsProps = {
+  deliveryId: number | undefined
   onDelete: (id: number) => void;
   onUpdate: (updatedCargo: CargoProps) => void;
 } & CargoProps
@@ -46,7 +47,7 @@ const formSchema = z.object({
     .max(150, { message: 'A descrição da carga deve ter no máximo 150 caracteres.' })
 });
 
-export default function CargoTableItem({ id, name: initialName, type: initialType, description: initialDescription, onDelete, onUpdate }: CargoItemsProps) {
+export default function CargoTableItem({ id, name: initialName, type: initialType, description: initialDescription, deliveryId, onDelete, onUpdate }: CargoItemsProps) {
   const { toast } = useToast();
   const [dialogIsOpen, setDialogIsOpen] = useState(false);
   const [editDialogIsOpen, setEditDialogIsOpen] = useState(false);
@@ -77,7 +78,7 @@ export default function CargoTableItem({ id, name: initialName, type: initialTyp
         });
       } else {
         const updatedCargo = { id, ...data }
-        await onUpdate(updatedCargo);
+        onUpdate(updatedCargo);
         setEditDialogIsOpen(false);
         toast({
           title: 'Carga atualizada com sucesso!',
@@ -97,6 +98,7 @@ export default function CargoTableItem({ id, name: initialName, type: initialTyp
         {cargoTypeOptions[initialType].badge}
       </TableCell>
       <TableCell>{initialDescription ?? '-'}</TableCell>
+      <TableCell>{deliveryId ?? '-'}</TableCell>
       <TableCell className="flex">
         <Dialog open={editDialogIsOpen} onOpenChange={setEditDialogIsOpen}>
           <DialogTrigger asChild>

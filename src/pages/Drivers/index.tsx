@@ -94,9 +94,9 @@ export default function Drivers() {
                   />
                 ))
               )}
-              {(!loading && (!driversList || driversList.length === 0)) && <NoItemsFound />}
             </TableBody>
           </Table>
+          {(!loading && (!driversList || driversList.length === 0)) && <NoItemsFound />}
         </CardContent>
       </Card>
 

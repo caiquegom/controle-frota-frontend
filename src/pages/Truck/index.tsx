@@ -14,7 +14,6 @@ import useAxios from '@/hooks/useAxios';
 import axios, { AxiosError } from 'axios';
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { DriverProps } from '../Drivers';
 import TruckTableItem from './components/TruckTableItem';
 
 export type TruckProps = {
@@ -24,22 +23,13 @@ export type TruckProps = {
   model: string;
   year: string;
   capacity: number;
-  driver: DriverProps
 };
 
 export default function Truck() {
   const navigate = useNavigate();
-  const tableHeaders = ["Id", "Placa", "Marca", "Modelo", "Ano", "Capacidade(t)", "Motorista", "Ações"];
-  const { response: trucksResponse, loading: truckLoading } = useAxios({ url: '/trucks', method: 'get' });
-  const { response: driversResponse } = useAxios({ url: '/drivers', method: 'get' });
+  const tableHeaders = ["Id", "Placa", "Marca", "Modelo", "Ano", "Capacidade(t)", "Ações"];
+  const { response, loading } = useAxios({ url: '/trucks', method: 'get' });
   const [trucksList, setTrucksList] = useState<TruckProps[]>([]);
-  const [driverOptions, setdriverOptions] = useState<DriverProps[]>([]);
-
-  useEffect(() => {
-    if (!trucksResponse || !driversResponse) return;
-    setTrucksList(trucksResponse?.data);
-    setdriverOptions(driversResponse?.data);
-  }, [trucksResponse, driversResponse]);
 
   async function deleteTruck(id: number) {
     try {
@@ -73,6 +63,11 @@ export default function Truck() {
     }
   }
 
+  useEffect(() => {
+    if (!response) return
+    setTrucksList(response.data)
+  }, [response])
+
   return (
     <>
       <h1 className="text-2xl font-semibold pb-4">Caminhões</h1>
@@ -92,7 +87,7 @@ export default function Truck() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {truckLoading ? (
+              {loading ? (
                 <TableSkeleton columnsAmount={tableHeaders.length} />
               ) : (
                 trucksList?.map((truck: TruckProps) => (
@@ -104,8 +99,6 @@ export default function Truck() {
                     capacity={truck.capacity}
                     model={truck.model}
                     year={truck.year}
-                    driver={truck.driver}
-                    driverOptions={driverOptions}
                     onDelete={deleteTruck}
                     onUpdate={updateTruck}
                   />
@@ -113,7 +106,7 @@ export default function Truck() {
               )}
             </TableBody>
           </Table>
-          {(!truckLoading && (!trucksList || trucksList.length === 0)) && <NoItemsFound />}
+          {(!loading && (!trucksList || trucksList.length === 0)) && <NoItemsFound />}
         </CardContent>
       </Card>
     </>
