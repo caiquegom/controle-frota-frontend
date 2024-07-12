@@ -7,19 +7,19 @@ import {
   FormField,
   FormItem,
   FormLabel,
-  FormMessage,
+  FormMessage
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { ToastAction } from '@/components/ui/toast';
 import { useToast } from '@/components/ui/use-toast';
 import { zodResolver } from '@hookform/resolvers/zod';
-import axios from 'axios';
+import axios, { AxiosError } from 'axios';
 import { useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
 import * as z from 'zod';
 
 const formSchema = z.object({
-  name: z.string().min(3, 'O nome precisa ter pelo menos 3 caracteres.'),
+  plate: z.string().refine((value) => /^[a-zA-Z]{3}[0-9][A-Za-z0-9][0-9]{2}$/.test(value ?? ""), 'Digite uma placa válida. Exemplo: XXX0000'),
   brand: z.string().min(1, 'A marca não pode estar vazia.'),
   model: z.string().min(1, 'O modelo não pode estar vazio.'),
   year: z.string().length(4, 'O ano deve ter 4 caracteres.').refine((year) => {
@@ -37,7 +37,7 @@ export default function TruckForm() {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      name: '',
+      plate: '',
       brand: '',
       model: '',
       year: '',
@@ -51,7 +51,7 @@ export default function TruckForm() {
       form.reset();
       toast({
         title: 'Caminhão cadastrado com sucesso!',
-        description: `${values.brand} ${values.model} - Ano: ${values.year}`,
+        description: `${values.brand} ${values.model} - Placa: ${values.plate}`,
         action: (
           <ToastAction altText="Visualizar" onClick={() => navigate('/trucks')}>
             Visualizar
@@ -59,7 +59,13 @@ export default function TruckForm() {
         ),
       });
     } catch (error) {
-      console.error('Error:', error);
+      if (error instanceof AxiosError) {
+        toast({
+          title: 'Erro ao tentar cadastrar!',
+          description: `${error.response?.data.message}`,
+          variant: 'destructive',
+        });
+      }
     }
   }
 
@@ -75,12 +81,12 @@ export default function TruckForm() {
             >
               <FormField
                 control={form.control}
-                name="name"
+                name="plate"
                 render={({ field }) => (
                   <FormItem className="col-span-2">
-                    <FormLabel>Nome</FormLabel>
+                    <FormLabel>Placa</FormLabel>
                     <FormControl>
-                      <Input placeholder="Digite o nome do caminhão" {...field} />
+                      <Input placeholder="XXX0000" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
