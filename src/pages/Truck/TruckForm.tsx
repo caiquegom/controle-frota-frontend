@@ -47,7 +47,7 @@ export default function TruckForm() {
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     try {
-      await axios.post('/truck', values);
+      await axios.post('/truck', { ...values, plate: values.plate.toUpperCase() });
       form.reset();
       toast({
         title: 'Caminhão cadastrado com sucesso!',
