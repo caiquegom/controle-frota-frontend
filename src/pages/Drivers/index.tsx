@@ -32,8 +32,18 @@ export default function Drivers() {
     try {
       await axios.delete(`/driver/${id}`);
       setDriversList(driversList.filter((driver) => driver.id !== id));
+      toast({
+        title: 'Motorista excluído com sucesso!',
+      })
+
     } catch (error) {
-      console.error('Error:', error);
+      if (error instanceof AxiosError) {
+        toast({
+          title: 'Erro ao tentar deletar!',
+          description: `${error.response?.data.message}`,
+          variant: "destructive"
+        });
+      }
     }
   }
 

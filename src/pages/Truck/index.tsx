@@ -35,8 +35,17 @@ export default function Truck() {
     try {
       await axios.delete(`/truck/${id}`);
       setTrucksList(trucksList.filter((truck) => truck.id !== id));
+      toast({
+        title: 'Caminhão excluído com sucesso!',
+      })
     } catch (error) {
-      console.error('Error:', error);
+      if (error instanceof AxiosError) {
+        toast({
+          title: 'Erro ao tentar deletar!',
+          description: `${error.response?.data.message}`,
+          variant: "destructive"
+        });
+      }
     }
   }
 

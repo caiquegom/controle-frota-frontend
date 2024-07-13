@@ -63,10 +63,6 @@ export default function CargoTableItem({ id, name: initialName, type: initialTyp
 
   async function handleDelete() {
     onDelete(id);
-    toast({
-      title: 'Carga excluída com sucesso!',
-      variant: 'destructive',
-    });
     setDialogIsOpen(false);
   }
 

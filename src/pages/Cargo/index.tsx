@@ -3,8 +3,9 @@ import TableSkeleton from "@/components/TableSkeleton";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Table, TableBody, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { toast } from "@/components/ui/use-toast";
 import useAxios from "@/hooks/useAxios";
-import axios from "axios";
+import axios, { AxiosError } from "axios";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { DeliveryProps } from "../Deliveries";
@@ -28,8 +29,17 @@ export default function Cargo() {
     try {
       await axios.delete(`/cargo/${id}`);
       setCargoList(cargosList.filter(cargo => cargo.id !== id));
+      toast({
+        title: 'Carga excluída com sucesso!',
+      })
     } catch (error) {
-      console.error('Error:', error);
+      if (error instanceof AxiosError) {
+        toast({
+          title: 'Erro ao tentar deletar!',
+          description: `${error.response?.data.message}`,
+          variant: "destructive"
+        });
+      }
     }
   }
 

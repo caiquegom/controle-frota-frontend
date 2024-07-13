@@ -9,8 +9,9 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
+import { toast } from '@/components/ui/use-toast';
 import useAxios from '@/hooks/useAxios';
-import axios from 'axios';
+import axios, { AxiosError } from 'axios';
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import RegionTableItem from './components/RegionTableItem';
@@ -32,8 +33,17 @@ export default function Region() {
     try {
       await axios.delete(`/region/${id}`);
       setRegionsList(regionsList.filter(region => region.id !== id));
+      toast({
+        title: 'Região excluída com sucesso!',
+      })
     } catch (error) {
-      console.error('Error:', error);
+      if (error instanceof AxiosError) {
+        toast({
+          title: 'Erro ao tentar deletar!',
+          description: `${error.response?.data.message}`,
+          variant: "destructive"
+        });
+      }
     }
   }
 

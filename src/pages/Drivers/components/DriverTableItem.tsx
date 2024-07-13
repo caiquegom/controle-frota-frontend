@@ -41,10 +41,6 @@ export default function DriverTableItem({ id, name: initialName, email: initialE
 
   async function handleDelete() {
     onDelete(id);
-    toast({
-      title: 'Motorista excluído com sucesso!',
-      variant: 'destructive',
-    });
     setDialogIsOpen(false);
   }
 

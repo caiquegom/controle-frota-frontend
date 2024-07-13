@@ -77,10 +77,6 @@ export default function TruckTableItem({
 
   async function handleDelete() {
     onDelete(id);
-    toast({
-      title: 'Caminhão excluído com sucesso!',
-      variant: 'destructive',
-    });
     setDialogIsOpen(false);
   }
 

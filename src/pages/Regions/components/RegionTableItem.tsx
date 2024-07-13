@@ -66,10 +66,6 @@ export default function RegionTableItem({
 
   async function handleDelete() {
     onDelete(id);
-    toast({
-      title: 'Região excluída com sucesso!',
-      variant: 'destructive',
-    });
     setDialogIsOpen(false);
   }
 
@@ -83,7 +79,7 @@ export default function RegionTableItem({
         });
       } else {
         const updatedRegion = { ...data, id, tax: decimalTax };
-        await onUpdate(updatedRegion);
+        onUpdate(updatedRegion);
         setEditDialogIsOpen(false);
         toast({
           title: 'Região atualizada com sucesso!',

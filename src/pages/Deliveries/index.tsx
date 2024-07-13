@@ -9,7 +9,9 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
+import { toast } from '@/components/ui/use-toast';
 import useAxios from '@/hooks/useAxios';
+import axios, { AxiosError } from 'axios';
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { CargoProps } from '../Cargo';
@@ -53,6 +55,24 @@ export default function Deliveries() {
   const { response, loading } = useAxios({ url: '/deliveries', method: 'get' });
   const [deliveriesList, setDeliveriesList] = useState<DeliveryProps[]>([]);
 
+  async function deleteDelivery(id: number) {
+    try {
+      await axios.delete(`/delivery/${id}`);
+      setDeliveriesList(deliveriesList.filter(delivery => delivery.id !== id));
+      toast({
+        title: 'Entrega excluída com sucesso!',
+      })
+    } catch (error) {
+      if (error instanceof AxiosError) {
+        toast({
+          title: 'Erro ao tentar deletar!',
+          description: `${error.response?.data.message}`,
+          variant: "destructive"
+        });
+      }
+    }
+  }
+
   useEffect(() => {
     if (!response) return;
     setDeliveriesList(response?.data);
@@ -84,15 +104,16 @@ export default function Deliveries() {
                   <DeliveryTableItem
                     key={delivery.id}
                     id={delivery.id}
-                    cargoName={delivery.cargo.name}
+                    cargoName={delivery.cargo?.name}
                     deliveryDate={new Date(delivery.deliveryDate)}
-                    destinyName={delivery.destiny.name}
+                    destinyName={delivery.destiny?.name}
                     driver={delivery.driver}
                     truckId={delivery.truck.id}
                     totalValue={delivery.totalValue}
                     isDangerous={delivery.isDangerous}
                     isValuable={delivery.isValuable}
                     hasInsurance={delivery.hasInsurance}
+                    onDelete={deleteDelivery}
                   />
                 ))
               )}

@@ -11,7 +11,6 @@ import { toast } from '@/components/ui/use-toast';
 import useAxios from '@/hooks/useAxios';
 import { cn } from '@/lib/utils';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { PopoverClose } from '@radix-ui/react-popover';
 import axios, { AxiosError } from 'axios';
 import { format } from 'date-fns';
 import { CalendarIcon } from 'lucide-react';
@@ -151,9 +150,6 @@ export default function DeliveryForm() {
     try {
       await axios.post('/delivery', { ...values, deliveryDate: new Date(values.deliveryDate) });
       form.reset();
-      form.setValue('destinyId', 0)
-      form.setValue('cargoId', 0)
-      form.setValue('truckId', 0)
 
       toast({
         title: 'Entrega cadastrada com sucesso!',
@@ -213,17 +209,15 @@ export default function DeliveryForm() {
                         </FormControl>
                       </PopoverTrigger>
                       <PopoverContent className="w-auto p-0" align="start">
-                        <PopoverClose>
-                          <Calendar
-                            mode="single"
-                            onSelect={field.onChange}
-                            disabled={(date) =>
-                              date < new Date()
-                            }
-                            initialFocus
+                        <Calendar
+                          mode="single"
+                          onSelect={field.onChange}
+                          disabled={(date) =>
+                            date < new Date()
+                          }
+                          initialFocus
 
-                          />
-                        </PopoverClose>
+                        />
                       </PopoverContent>
                     </Popover>
                     <FormMessage />
@@ -348,7 +342,7 @@ export default function DeliveryForm() {
                     <FormControl>
                       <Input
                         type="number"
-                        step="1"
+                        step="0,01"
                         placeholder="Digite o valor"
                         {...field}
                         onChange={(e) => {
