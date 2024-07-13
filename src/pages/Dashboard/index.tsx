@@ -58,7 +58,9 @@ export default function Dashboard() {
         <h1 className="text-2xl font-semibold pb-4">Dashboard</h1>
         <div className='flex items-center mb-6 gap-'>
           <DatePicker date={date} setDate={setDate} />
-          <Button className='border-black border-2 rounded-l-0 bg-black text-white rounded-none rounded-r-md text'>Hoje</Button>
+          <Button className='border-black border-2 rounded-l-0 bg-black text-white rounded-none rounded-r-md text' onClick={() => {
+            setDate(new Date())
+          }}>Hoje</Button>
         </div>
       </div>
       {isLoading ? (
